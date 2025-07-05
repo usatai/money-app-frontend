@@ -27,10 +27,11 @@ export default function Main() {
     const [moneyDate, setMoneyDate] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const router = useRouter();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const fetchDate = async (selectMonth : string) => {
     try {
-        const response = await fetch(`http://localhost:8080/api/user/main?&selectMonth=${selectMonth}`,{
+        const response = await fetch(`${apiUrl}/api/user/main?&selectMonth=${selectMonth}`,{
             credentials:'include',
         });
 
@@ -69,7 +70,7 @@ useEffect(() => {
 
 const checkSession = async () => {
     try{
-        const response = await fetch("http://localhost:8080/api/user/check-session",{
+        const response = await fetch(`${apiUrl}/api/user/check-session`,{
             credentials : 'include'
         })
 

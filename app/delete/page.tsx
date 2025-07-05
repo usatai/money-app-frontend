@@ -9,11 +9,11 @@ const DeletePage = () => {
     const [error,setError] = useState<string | null>(null);
     const [isLoading,setLoding] = useState(true);
     const router = useRouter();
-
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     useEffect(() => {
         const checkAuth = async () => {
-            const res = await fetch("http://localhost:8080/api/user/check-auth",{
+            const res = await fetch(`${apiUrl}/api/user/check-auth`,{
                 credentials : 'include'
             })
             console.log(res.status);
@@ -27,7 +27,7 @@ const DeletePage = () => {
     },[router])
 
     useEffect(() => {
-        fetch("http://localhost:8080/api/user/money", {
+        fetch(`${apiUrl}/api/user/money`, {
             method : 'GET',
             credentials : 'include',
         })
@@ -50,7 +50,7 @@ const DeletePage = () => {
         e.preventDefault();
         setError(null);
 
-        fetch("http://localhost:8080/api/user/delete",{
+        fetch(`{apiUrl}/api/user/delete`,{
             method : 'POST',
             credentials : 'include',
             headers : {'Content-Type' : 'application/json'},

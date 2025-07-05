@@ -9,6 +9,7 @@ const LoginPage = () => {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,7 +20,7 @@ const LoginPage = () => {
     setError(null);
 
     try {
-        const response = await fetch('http://localhost:8080/api/user/login', {
+        const response = await fetch(`${apiUrl}/api/user/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
