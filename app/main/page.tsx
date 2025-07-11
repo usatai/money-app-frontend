@@ -32,7 +32,6 @@ export default function Main() {
 const fetchDate = async (selectMonth : string) => {
     try {
         const response = await fetch(`http://localhost:8080/api/user/main?&selectMonth=${selectMonth}`,{
-        // const response = await fetch(`${apiUrl}/api/user/main?&selectMonth=${selectMonth}`,{
             credentials:'include',
         });
 
@@ -72,7 +71,6 @@ useEffect(() => {
 const checkSession = async () => {
     try{
         const response = await fetch('http://localhost:8080/api/user/check-session',{
-        // const response = await fetch(`${apiUrl}/api/user/check-session`,{
             credentials : 'include'
         })
 

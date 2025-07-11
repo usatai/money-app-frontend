@@ -14,7 +14,6 @@ const DeletePage = () => {
     useEffect(() => {
         const checkAuth = async () => {
             const res = await fetch('http://localhost:8080/api/user/check-auth',{
-            // const res = await fetch(`${apiUrl}/api/user/check-auth`,{
                 credentials : 'include'
             })
             console.log(res.status);

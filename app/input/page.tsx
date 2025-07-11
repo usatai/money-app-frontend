@@ -12,8 +12,8 @@ const InputPage = () => {
 
     useEffect(() => {
         const checkAuth = async () => {
+            // ローカル開発用
             const res = await fetch('http://localhost:8080/api/user/check-auth',{
-            // const res = await fetch(`${apiUrl}/api/user/check-auth`,{
                 credentials : 'include'
             })
             console.log(res.status);
@@ -36,7 +36,6 @@ const InputPage = () => {
 
         try{
             const response = await fetch('http://localhost:8080/api/user/input',{
-            // const response = await fetch(`${apiUrl}/api/user/input`,{
                 method : "POST",
                 headers : {'Content-Type':'application/json'},
                 credentials : 'include',
@@ -74,7 +73,7 @@ const InputPage = () => {
             <div className="bg-white p-8 rounded-lg shadow-md w-96">
                 <h1 className="text-2xl font-bold text-center mb-10">支出項目の入力</h1>
 
-                <h3 className="text-2l text-center mb-10">管理をしたい支出項目を入力してください</h3>
+                <h3 className="text-sm text-center mb-10">管理をしたい収支カテゴリーを入力してください</h3>
                 
                 {error && (
                 <div className="mb-4 p-4 rounded bg-red-50 text-red-600 text-sm">

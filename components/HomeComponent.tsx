@@ -23,7 +23,7 @@ const HomeComponent = () => {
             {/* ヒーローセクション */}
             <div className="container mx-auto px-4 py-16 text-center">
                 <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4 focus-in-contract">
-                    お金管理サービス「マネカン」
+                    お金管理サービス<p>「マネカン」</p>
                 </h1>
                 <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
                     あなたの財務をスマートに管理し、より良い未来を築きましょう
@@ -46,9 +46,9 @@ const HomeComponent = () => {
                     {[
                         {
                             src: "/images/money-management.jpg",
-                            alt: "お金と向き合う",
-                            title: "お金と向き合う重要性",
-                            description: "「お金を愛せないやつはお金からも愛されない」という言葉があるようにお金と向き合えば向き合うほどお金に愛される人間になれる"
+                            alt: "目標設定",
+                            title: "収支金額設定",
+                            description: "カテゴリーごとに金額を設定でき、何に使っていて無駄使いを認識できる"
                         },
                         {
                             src: "/images/money-visualization.jpg",
@@ -57,10 +57,10 @@ const HomeComponent = () => {
                             description: "数字だけじゃわかりずらい。なので本サービスでは数値をグラフ化し常にお金と向き合えているかを実感できる"
                         },
                         {
-                            src: "/images/money-happiness.jpg",
-                            alt: "幸福度",
-                            title: "そして幸福度を手に入れる",
-                            description: "無駄な出費を抑え、最愛の人へのプレゼント、自己投資。そういったものに使っていくことであなたも幸せを実感できる"
+                            src: "/images/money-remainder.jpg",
+                            alt: "通知機能",
+                            title: "通知機能",
+                            description: "設定した支出金額目標より使いすぎなときはリマインドしてくれて目標達成をサポートしてくれる"
                         }
                     ].map((card, index) => (
                         <div key={index} 

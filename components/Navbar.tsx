@@ -48,9 +48,9 @@ export default function Navbar() {
           <div className="hidden md:ml-6 md:block">
             <div className="flex space-x-4">
               <Link href="/main" className="hover:text-blue-600 p-2">グラフ画面</Link>
-              <Link href="/input" className="hover:text-blue-600 p-2">新規支出分類登録</Link>
-              <Link href="/money" className="hover:text-blue-600 p-2">支出金額登録</Link>
-              <Link href="/delete" className="hover:text-blue-600 p-2">分類/金額削除</Link>
+              <Link href="/input" className="hover:text-blue-600 p-2">収支カテゴリー登録</Link>
+              <Link href="/money" className="hover:text-blue-600 p-2">収支金額登録</Link>
+              <Link href="/delete" className="hover:text-blue-600 p-2">カテゴリー/登録金額削除</Link>
               <LogoutButton />
             </div>
           </div>
@@ -60,9 +60,9 @@ export default function Navbar() {
         <div className={`${isOpen ? 'block' : 'hidden'} md:hidden mt-4`}>
           <div className="flex flex-col space-y-2">
             <Link href="/main" className="hover:text-blue-600 p-2">グラフ画面</Link>
-            <Link href="/input" className="hover:text-blue-600 p-2">新規支出分類登録</Link>
-            <Link href="/money" className="hover:text-blue-600 p-2">支出金額登録</Link>
-            <Link href="/delete" className="hover:text-blue-600 p-2">分類/金額削除</Link>
+            <Link href="/input" className="hover:text-blue-600 p-2">収支カテゴリー登録</Link>
+            <Link href="/money" className="hover:text-blue-600 p-2">収支金額登録</Link>
+            <Link href="/delete" className="hover:text-blue-600 p-2">カテゴリー/登録金額削除</Link>
             <LogoutButton />
           </div>
         </div>

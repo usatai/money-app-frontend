@@ -21,7 +21,6 @@ const LoginPage = () => {
 
     try {
         const response = await fetch('http://localhost:8080/api/user/login', {
-        // const response = await fetch(`${apiUrl}/api/user/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -35,6 +34,7 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (response.ok) {
+        console.log("user_id",data.userId);
         router.push(`/main`);
         // ?userId=${data.userId}
       }else{
