@@ -11,7 +11,8 @@ const MoneyPage = () => {
 
     useEffect(() => {
         const checkAuth = async () => {
-            const res = await fetch(`${apiUrl}/api/user/check-auth`,{
+            const res = await fetch('http://localhost:8080/api/user/check-auth', {
+            // const res = await fetch(`${apiUrl}/api/user/check-auth`,{
                 credentials : 'include'
             })
             console.log(res.status);
@@ -42,7 +43,8 @@ const MoneyPage = () => {
         setError(null);
 
         try{
-            const response = await fetch(`${apiUrl}/api/user/money`, {
+            const response = await fetch('http://localhost:8080/api/user/money',{
+            // const response = await fetch(`${apiUrl}/api/user/money`, {
                 method : 'POST',
                 credentials : 'include',
                 headers : { 'Content-Type': 'application/json' },
@@ -71,7 +73,8 @@ const MoneyPage = () => {
     };
 
     useEffect(() => {
-        fetch(`${apiUrl}/api/user/money`,{
+        fetch('http://localhost:8080/api/user/money', {
+        // fetch(`${apiUrl}/api/user/money`,{
             method : 'GET',
             credentials : 'include',
         })
@@ -104,7 +107,7 @@ const MoneyPage = () => {
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <h2 className="text-2xl font-bold text-center text-gray-800">金額入力</h2>
-                    <p className="text-center text-gray-600">登録する日付・分類・金額を登録してください</p>
+                    <p className="text-center text-gray-600 text-sm">登録する日付・分類・金額を登録してください</p>
 
                     {/* 日付入力 */}
                     <div>

@@ -12,7 +12,8 @@ const InputPage = () => {
 
     useEffect(() => {
         const checkAuth = async () => {
-            const res = await fetch(`${apiUrl}/api/user/check-auth`,{
+            const res = await fetch('http://localhost:8080/api/user/check-auth',{
+            // const res = await fetch(`${apiUrl}/api/user/check-auth`,{
                 credentials : 'include'
             })
             console.log(res.status);
@@ -34,7 +35,8 @@ const InputPage = () => {
         setError(null);
 
         try{
-            const response = await fetch(`${apiUrl}/api/user/input`,{
+            const response = await fetch('http://localhost:8080/api/user/input',{
+            // const response = await fetch(`${apiUrl}/api/user/input`,{
                 method : "POST",
                 headers : {'Content-Type':'application/json'},
                 credentials : 'include',
