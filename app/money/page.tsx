@@ -8,6 +8,13 @@ const MoneyPage = () => {
     const [isLoading,setLoding] = useState(true);
     const router = useRouter();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    // フォームの状態管理
+    const [formData, setFormData] = useState({
+        date: new Date().toISOString().split('T')[0],
+        income_expenditure: '',
+        label_name: '',
+        money_price: ''
+    });
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -23,13 +30,6 @@ const MoneyPage = () => {
         }
         checkAuth();
     },[router])
-
-    // フォームの状態管理
-    const [formData, setFormData] = useState({
-        date: new Date().toISOString().split('T')[0],
-        label_name: '',
-        money_price: ''
-    });
 
     // 金額のフォーマット処理
     const formatMoneyInput = (value: string) => {
@@ -47,9 +47,10 @@ const MoneyPage = () => {
                 credentials : 'include',
                 headers : { 'Content-Type': 'application/json' },
                 body : JSON.stringify({
+                    date : formData.date,
+                    income_expenditure: formData.income_expenditure,
                     label_name : formData.label_name,
-                    money_price : formData.money_price,
-                    date : formData.date
+                    money_price : formData.money_price
                 }),
             });
 
@@ -116,6 +117,18 @@ const MoneyPage = () => {
                         />
                     </div>
 
+                    {/* 収支区別 */}
+                    <div>
+                        <select 
+                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            onChange={(e) => setFormData({...formData, income_expenditure: e.target.value})}
+                            value={formData.income_expenditure}
+                            >
+                            <option value="収入">収入</option>
+                            <option value="支出">支出</option>
+                        </select>
+                    </div>
+
                     {/* カテゴリー選択 */}
                     <div>
                         <select
@@ -123,7 +136,7 @@ const MoneyPage = () => {
                             onChange={(e) => setFormData({...formData, label_name: e.target.value})}
                             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                            <option value="" disabled>分類を選択</option>
+                            <option value="" disabled>カテゴリーを選択</option>
                             {moneyList.map((money)=> {
                                 return <option key={money}>{money}</option>
                             })}
