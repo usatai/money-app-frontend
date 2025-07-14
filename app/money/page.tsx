@@ -63,7 +63,6 @@ const MoneyPage = () => {
                     setError(data.errors);
                 }
             }
-
         }catch (e) {
             if(e instanceof Error){
                 setError(e.message);
