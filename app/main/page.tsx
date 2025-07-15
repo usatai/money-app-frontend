@@ -32,10 +32,15 @@ export default function Main() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const router = useRouter();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const [isIncomeState, setIsIncomeState] = useState(true);
 
-    const fetchDate = async (selectMonth : string) => {
+    const handleToggle = () => {
+        setIsIncomeState(prevState => !prevState);
+    };
+
+    const fetchDate = async (selectMonth : string,type:string) => {
         try {
-            const response = await fetch(`http://localhost:8080/api/user/main?&selectMonth=${selectMonth}`,{
+            const response = await fetch(`http://localhost:8080/api/user/main?&selectMonth=${selectMonth}&type=${type}`,{
                 credentials:'include',
             });
 
@@ -55,7 +60,8 @@ export default function Main() {
 
     useEffect(() => {
         const fetchDataAndState = async () => {
-            const data = await fetchDate(selectMonth);
+            const type = isIncomeState ? 'INCOME' : 'EXPENDITURE'
+            const data = await fetchDate(selectMonth,type);
             if(data){
                 setLabelList(data.labelList);
                 setMoneyList(data.moneyList);
@@ -69,7 +75,7 @@ export default function Main() {
 
         fetchDataAndState();
 
-    },[selectMonth]);
+    },[selectMonth,isIncomeState]);
 
     const checkSession = async () => {
         try{
@@ -90,28 +96,11 @@ export default function Main() {
         const interval = setInterval(checkSession,2 * 60 * 1000);
         return () => clearInterval(interval);
     },[router]);
-  
-    // const pieChartData = {
-    //     labels: labelList,
-    //     datasets: [{
-    //     data: moneyList,
-    //     backgroundColor: chartColors,
-    //     }]
-    // };
 
     const pieChartData = labelList.map((label, index) => ({
         name: label, // ラベル名
         value: moneyList[index], // 対応する金額
-    }));
-
-    // const barChartData = {
-    //     labels: moneyDate,
-    //     datasets: [{
-    //     label: '支出金額',
-    //     data: moneyNowList,
-    //     backgroundColor: 'rgba(241, 107, 141, 1)',
-    //     }]
-    // };
+    }))
 
     const barChartData = moneyDate.map((date,index) => ({
         date: date,
@@ -145,24 +134,50 @@ export default function Main() {
                         </select>
                     </div>
 
-                        {/* 円グラフセクション */}
                     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                         <h4 className="text-xl font-bold text-center mb-6">
                             月間リアルタイム割合支出金額グラフ
                         </h4>
+                        <div className="flex justify-center mb-6">
+                            <button
+                                type="button"
+                                className={`
+                                    px-3 py-1 rounded-l-lg text-sm font-semibold transition-colors duration-200
+                                    ${isIncomeState
+                                        ? 'bg-green-600 text-white shadow-md' // 収入が選択されている色
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300' // 支出が選択されていない色
+                                    }
+                                `}
+                                onClick={() => setIsIncomeState(true)}
+                            >
+                                収入
+                            </button>
+                            <button
+                                type="button"
+                                className={`
+                                    px-3 py-1 rounded-r-lg text-sm font-semibold transition-colors duration-200
+                                    ${!isIncomeState
+                                        ? 'bg-red-600 text-white shadow-md' // 支出が選択されている色
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300' // 収入が選択されていない色
+                                    }
+                                `}
+                                onClick={() => setIsIncomeState(false)}
+                            >
+                                支出
+                            </button>
+                        </div>
                         <div className="flex flex-col md:flex-row">
                            {pieChartData.length > 0 ? (
-                                <div style={{ width: '100%', height: 250 }}> {/* 例: 高さを250pxに設定 */}
+                                <div style={{ width: '100%', height: 250 }}>
                                     <ResponsiveContainer>
                                         <PieChart>
                                             <Pie
                                                 data={pieChartData}
                                                 cx="50%" // チャートの中心X座標 (任意)
                                                 cy="50%" // チャートの中心Y座標 (任意)
-                                                innerRadius={60} // ドーナツの内側の半径
-                                                outerRadius={90} // ドーナツの外側の半径
-                                                // fill="#8884d8" // デフォルトの色 (Cellで上書きされるため、必須ではない)
-                                                paddingAngle={3} // 各セグメント間の隙間 (任意)
+                                                innerRadius={70} // ドーナツの内側の半径
+                                                outerRadius={100} // ドーナツの外側の半径
+                                                paddingAngle={1} // 各セグメント間の隙間 (任意)
                                                 dataKey="value" // ★重要: データオブジェクトのどのプロパティを「値」として使うか
                                                 nameKey="name"  // ★重要: データオブジェクトのどのプロパティを「名前（ラベル）」として使うか
                                             >
