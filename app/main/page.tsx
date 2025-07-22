@@ -65,6 +65,7 @@ export default function Main() {
             if(data){
                 setLabelList(data.labelList);
                 setMoneyList(data.moneyList);
+                console.log(moneyList);
                 setMoneySum(data.moneySum);
                 setMoneyNowList(data.moneyNowList);
                 setMoneyDate(data.moneyDate);
@@ -194,7 +195,7 @@ export default function Main() {
                             ) : (
                             <div className="w-3/4 mx-auto h-[250px] flex items-center justify-center text-gray-500">
                                 グラフデータがありません。
-                            </div> 
+                            </div>
                             )}
                         </div>
                     </div>

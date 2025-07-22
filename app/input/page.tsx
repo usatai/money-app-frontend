@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState ,useEffect} from "react";
 
 const InputPage = () => {
-    const [form,setForm] = useState({labelName: ''});
+    const [form,setForm] = useState({labelName: '',type:''});
     const [error,setError] = useState<string | null>(null);
     const [isLoading,setLoding] = useState(true);
     const router = useRouter();
@@ -40,7 +40,8 @@ const InputPage = () => {
                 headers : {'Content-Type':'application/json'},
                 credentials : 'include',
                 body : JSON.stringify({
-                    label_name:form.labelName
+                    label_name:form.labelName,
+
                 }),
             });
 
@@ -71,7 +72,7 @@ const InputPage = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
             <div className="bg-white p-8 rounded-lg shadow-md w-96">
-                <h1 className="text-2xl font-bold text-center mb-10">支出項目の入力</h1>
+                <h1 className="text-2xl font-bold text-center mb-10">収支項目の入力</h1>
 
                 <h3 className="text-sm text-center mb-10">管理をしたい収支カテゴリーを入力してください</h3>
                 
@@ -82,6 +83,16 @@ const InputPage = () => {
                 )}
 
                 <form onSubmit={labelFormSubmit} className="space-y-4">
+                    <div>
+                        <select 
+                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            onChange={(e) => setForm({...form, type: e.target.value})}
+                            value={form.type}
+                            >
+                            <option value="収入">収入</option>
+                            <option value="支出">支出</option>
+                        </select>
+                    </div>
                     <div>
                         <input
                             type="text"

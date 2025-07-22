@@ -71,7 +71,9 @@ const MoneyPage = () => {
     };
 
     useEffect(() => {
-        fetch('http://localhost:8080/api/user/money', {
+        const type = formData.income_expenditure;
+        console.log(type);
+        fetch(`http://localhost:8080/api/user/money?type=${type}`, {
             method : 'GET',
             credentials : 'include',
         })
@@ -88,7 +90,7 @@ const MoneyPage = () => {
         .catch((error) => {
             setError(error.message);  // エラー処理
         });
-    },[])
+    },[formData.income_expenditure])
 
     if (isLoading) return <p className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50'>Loading...</p>;
 
@@ -123,8 +125,8 @@ const MoneyPage = () => {
                             onChange={(e) => setFormData({...formData, income_expenditure: e.target.value})}
                             value={formData.income_expenditure}
                             >
-                            <option value="収入">収入</option>
-                            <option value="支出">支出</option>
+                            <option value="INCOME">収入</option>
+                            <option value="EXPENDITURE">支出</option>
                         </select>
                     </div>
 
