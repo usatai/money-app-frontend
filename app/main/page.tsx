@@ -26,6 +26,7 @@ export default function Main() {
     const [userMonthList, setUserMonthList] = useState<string[]>([]);
     const [labelList, setLabelList] = useState<string[]>([]);
     const [moneyList, setMoneyList] = useState<number[]>([]);
+    const [selectedLabel, setSelectedLabel] = useState<string | null>(null); // nullで初期化
     const [moneySum, setMoneySum] = useState<number>(0);
     const [moneyNowList, setMoneyNowList] = useState<number[]>([]);
     const [moneyDate, setMoneyDate] = useState<string[]>([]);
@@ -38,7 +39,7 @@ export default function Main() {
         setIsIncomeState(prevState => !prevState);
     };
 
-    const fetchDate = async (selectMonth : string,type:string) => {
+    const fetchDate = async (selectMonth: string,type: string) => {
         try {
             const response = await fetch(`http://localhost:8080/api/user/main?&selectMonth=${selectMonth}&type=${type}`,{
                 credentials:'include',
@@ -107,6 +108,14 @@ export default function Main() {
         date: date,
         amount: moneyNowList[index],
     }));
+
+    const handleLabelClick = async (clickedLabel: string) => {
+        setSelectedLabel(clickedLabel);
+
+        if (window.confirm(`「${clickedLabel}」を本当に削除しますか？`)) {
+            return;
+        }
+    }
   
     if (isLoading) return <p className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50'>Loading...</p>;
 
@@ -145,8 +154,8 @@ export default function Main() {
                                 className={`
                                     px-3 py-1 rounded-l-lg text-sm font-semibold transition-colors duration-200
                                     ${isIncomeState
-                                        ? 'bg-green-600 text-white shadow-md' // 収入が選択されている色
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300' // 支出が選択されていない色
+                                        ? 'bg-green-600 text-white shadow-md'
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                     }
                                 `}
                                 onClick={() => setIsIncomeState(true)}
@@ -174,11 +183,11 @@ export default function Main() {
                                         <PieChart>
                                             <Pie
                                                 data={pieChartData}
-                                                cx="50%" // チャートの中心X座標 (任意)
-                                                cy="50%" // チャートの中心Y座標 (任意)
+                                                cx="50%" // チャートの中心X座標
+                                                cy="50%" // チャートの中心Y座標 
                                                 innerRadius={70} // ドーナツの内側の半径
                                                 outerRadius={100} // ドーナツの外側の半径
-                                                paddingAngle={1} // 各セグメント間の隙間 (任意)
+                                                paddingAngle={1} // 各セグメント間の隙間
                                                 dataKey="value" // ★重要: データオブジェクトのどのプロパティを「値」として使うか
                                                 nameKey="name"  // ★重要: データオブジェクトのどのプロパティを「名前（ラベル）」として使うか
                                             >
@@ -188,7 +197,14 @@ export default function Main() {
                                                 ))}
                                             </Pie>
                                             <Tooltip formatter={(value) => `${value.toLocaleString()}円`} />
-                                            <Legend />
+                                            <Legend onClick={(e) => {
+                                                const payload = e.payload as { name: string; value: number; };
+                                                if (payload?.name) {
+                                                    handleLabelClick(payload.name);
+                                                } else {
+
+                                                }
+                                            }}/>
                                         </PieChart>
                                     </ResponsiveContainer>
                                 </div>

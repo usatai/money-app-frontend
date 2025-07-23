@@ -11,7 +11,7 @@ const MoneyPage = () => {
     // フォームの状態管理
     const [formData, setFormData] = useState({
         date: new Date().toISOString().split('T')[0],
-        income_expenditure: '',
+        incomeExpenditureType: 'INCOME',
         label_name: '',
         money_price: ''
     });
@@ -48,7 +48,7 @@ const MoneyPage = () => {
                 headers : { 'Content-Type': 'application/json' },
                 body : JSON.stringify({
                     date : formData.date,
-                    income_expenditure: formData.income_expenditure,
+                    incomeExpenditureType: formData.incomeExpenditureType,
                     label_name : formData.label_name,
                     money_price : formData.money_price
                 }),
@@ -71,7 +71,7 @@ const MoneyPage = () => {
     };
 
     useEffect(() => {
-        const type = formData.income_expenditure;
+        const type = formData.incomeExpenditureType;
         console.log(type);
         fetch(`http://localhost:8080/api/user/money?type=${type}`, {
             method : 'GET',
@@ -90,7 +90,7 @@ const MoneyPage = () => {
         .catch((error) => {
             setError(error.message);  // エラー処理
         });
-    },[formData.income_expenditure])
+    },[formData.incomeExpenditureType])
 
     if (isLoading) return <p className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50'>Loading...</p>;
 
@@ -122,8 +122,8 @@ const MoneyPage = () => {
                     <div>
                         <select 
                             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            onChange={(e) => setFormData({...formData, income_expenditure: e.target.value})}
-                            value={formData.income_expenditure}
+                            onChange={(e) => setFormData({...formData, incomeExpenditureType: e.target.value})}
+                            value={formData.incomeExpenditureType}
                             >
                             <option value="INCOME">収入</option>
                             <option value="EXPENDITURE">支出</option>

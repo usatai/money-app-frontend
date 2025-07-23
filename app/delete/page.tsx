@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 const DeletePage = () => {
     const [labelList,setLabelList] = useState([]);
-    const [formData,setFormData] = useState({label_name:''});
+    const [formData,setFormData] = useState({label_name:'',incomeExpenditureType:'INCOME'});
     const [error,setError] = useState<string | null>(null);
     const [isLoading,setLoding] = useState(true);
     const router = useRouter();
@@ -27,7 +27,7 @@ const DeletePage = () => {
     },[router])
 
     useEffect(() => {
-        fetch(`${apiUrl}/api/user/money`, {
+        fetch('http://localhost:8080/api/user/money', {
             method : 'GET',
             credentials : 'include',
         })
@@ -83,7 +83,7 @@ const DeletePage = () => {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
             <div className="bg-white p-8 rounded-lg shadow-md w-96">
                 <h2 className="text-2xl font-bold text-center text-gray-800">分類削除</h2>
-                <p className="mt-3 text-center text-gray-600">削除する分類を選択してください</p>
+                <p className="mt-3 mb-3 text-center text-gray-600">削除する分類を選択してください</p>
 
 
                 {error && (
@@ -94,10 +94,20 @@ const DeletePage = () => {
 
                 <form onSubmit={deleteSubmit} className="space-y-6">
                 <div>
+                    <select 
+                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onChange={(e) => setFormData({...formData, incomeExpenditureType: e.target.value})}
+                        value={formData.incomeExpenditureType}
+                        >
+                        <option value="INCOME">収入</option>
+                        <option value="EXPENDITURE">支出</option>
+                    </select>
+                </div>
+                <div>
                     <select
                         value={formData.label_name}
                         onChange={(e) => setFormData({...formData, label_name: e.target.value})}
-                        className="mt-5 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
 
                         <option value="" disabled>分類を選択</option>
                         {labelList.map((label) => {
@@ -108,7 +118,7 @@ const DeletePage = () => {
 
                 <button
                 type="submit"
-                className="mt-5 w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition-colors"
+                className="mt-3 w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition-colors"
                 >
                  削除   
                 </button>
