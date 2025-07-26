@@ -3,18 +3,15 @@
 import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useState,useEffect } from 'react';
-// import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import { 
     PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend,
     BarChart, Bar, XAxis, YAxis, CartesianGrid 
 } from 'recharts';
-// import PieChart from '@/components/PieChart';
-// import BarChart from '@/components/BarChart';
 import Navbar from '@/components/Navbar';
 import { chartColors } from '@/components/ColorPalette';
 import SuccessMessage from '@/components/SuccessMessage';
-
-// ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
+import ConfirmDialog from '@/components/ConfirmDialog';
+import * as Dialog from '@radix-ui/react-dialog';
 
 export default function Main() {
     const getCurrentYearMonth = () => {
@@ -34,9 +31,16 @@ export default function Main() {
     const router = useRouter();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const [isIncomeState, setIsIncomeState] = useState(true);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [barChart,setBarChart] = useState('収入');
 
     const handleToggle = () => {
         setIsIncomeState(prevState => !prevState);
+    };
+
+    const handleLabelClick = (label: string) => {
+        setSelectedLabel(label);
+        setIsDialogOpen(true); // ダイアログを開く
     };
 
     const fetchDate = async (selectMonth: string,type: string) => {
@@ -62,11 +66,11 @@ export default function Main() {
     useEffect(() => {
         const fetchDataAndState = async () => {
             const type = isIncomeState ? 'INCOME' : 'EXPENDITURE'
+            setBarChart(isIncomeState ? '収入金額' : '支出金額');
             const data = await fetchDate(selectMonth,type);
             if(data){
                 setLabelList(data.labelList);
                 setMoneyList(data.moneyList);
-                console.log(moneyList);
                 setMoneySum(data.moneySum);
                 setMoneyNowList(data.moneyNowList);
                 setMoneyDate(data.moneyDate);
@@ -99,6 +103,29 @@ export default function Main() {
         return () => clearInterval(interval);
     },[router]);
 
+    // 削除確認のハンドラ
+    const handleConfirmDelete = async () => {
+        const response = await fetch ('http://localhost:8080/api/user/delete',{
+            method : 'POST',
+            credentials : 'include',
+            headers : {'Content-Type' : 'application/json'},
+            body : JSON.stringify({
+                label_name : selectedLabel
+            })
+        })
+        // 例: データから selectedLabel に一致するものをフィルタリングして状態更新
+        console.log(`「${selectedLabel}」を削除しました！`);
+        setIsDialogOpen(false); // ダイアログを閉じる
+        setSelectedLabel(null); // 選択状態をリセット
+        window.location.reload()
+    };
+
+    const handleCloseDialog = () => {
+        setIsDialogOpen(false);
+        setSelectedLabel(null); // キャンセル時も選択状態をクリア
+    };
+
+
     const pieChartData = labelList.map((label, index) => ({
         name: label, // ラベル名
         value: moneyList[index], // 対応する金額
@@ -108,14 +135,6 @@ export default function Main() {
         date: date,
         amount: moneyNowList[index],
     }));
-
-    const handleLabelClick = async (clickedLabel: string) => {
-        setSelectedLabel(clickedLabel);
-
-        if (window.confirm(`「${clickedLabel}」を本当に削除しますか？`)) {
-            return;
-        }
-    }
   
     if (isLoading) return <p className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50'>Loading...</p>;
 
@@ -207,6 +226,15 @@ export default function Main() {
                                             }}/>
                                         </PieChart>
                                     </ResponsiveContainer>
+                                    <ConfirmDialog
+                                        isOpen={isDialogOpen}
+                                        onClose={handleCloseDialog}
+                                        onConfirm={handleConfirmDelete}
+                                        title="確認"
+                                        description={`本当に「${selectedLabel}」に関連するデータを削除しますか？`}
+                                        confirmButtonText="削除する"
+                                        cancelButtonText="キャンセル"
+                                    />
                                 </div>
                             ) : (
                             <div className="w-3/4 mx-auto h-[250px] flex items-center justify-center text-gray-500">
@@ -248,7 +276,7 @@ export default function Main() {
                                     <Bar
                                         dataKey="amount" // barChartData内の 'amount' プロパティを棒の高さに使う
                                         fill="rgba(241, 107, 141, 1)" // 棒の色
-                                        name="支出金額" // 凡例に表示される名前
+                                        name={barChart} // 凡例に表示される名前
                                     />
                                 </BarChart>
                             </ResponsiveContainer>

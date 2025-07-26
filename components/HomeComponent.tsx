@@ -7,16 +7,24 @@ const HomeComponent = () => {
         <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 focus-in-contract">
             {/* ナビゲーションバー */}
             <nav className="bg-white/80 backdrop-blur-sm shadow-sm p-4 sticky top-0 z-50">
-                <div className="container mx-auto flex items-center">
-                    <Image
-                        src="/images/logo.png"
-                        alt="マネカン"
-                        width={40}
-                        height={40}
-                        className="mr-2"
-                        priority
-                    />
-                    <span className="text-2xl font-bold text-gray-800">マネカン</span>
+                <div className="container mx-auto flex items-center justify-between">
+                    <div className="flex items-center">
+                        <Image
+                            src="/images/logo.png"
+                            alt="マネカン"
+                            width={40}
+                            height={40}
+                            className="mr-2"
+                            priority
+                        />
+                        <span className="text-2xl font-bold text-gray-800">マネカン</span>
+                    </div>
+                
+                    <div className="flex-shrink-0">
+                        <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
+                            ゲストログイン
+                        </button>
+                    </div>
                 </div>
             </nav>
 

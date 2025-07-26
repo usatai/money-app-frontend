@@ -41,7 +41,7 @@ const InputPage = () => {
                 credentials : 'include',
                 body : JSON.stringify({
                     label_name:form.labelName,
-
+                    type:form.type
                 }),
             });
 
@@ -89,8 +89,8 @@ const InputPage = () => {
                             onChange={(e) => setForm({...form, type: e.target.value})}
                             value={form.type}
                             >
-                            <option value="収入">収入</option>
-                            <option value="支出">支出</option>
+                            <option value="INCOME">収入</option>
+                            <option value="EXPENDITURE">支出</option>
                         </select>
                     </div>
                     <div>
