@@ -30,13 +30,13 @@ export default function Main() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const router = useRouter();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const [isIncomeState, setIsIncomeState] = useState(true);
+    const [selectedCategory, setSelectedCategory] = useState<'total' | 'income' | 'expense'>('income');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [barChart,setBarChart] = useState('収入');
 
-    const handleToggle = () => {
-        setIsIncomeState(prevState => !prevState);
-    };
+    // const handleToggle = () => {
+    //     setIsIncomeState(prevState => !prevState);
+    // };
 
     const handleLabelClick = (label: string) => {
         setSelectedLabel(label);
@@ -65,8 +65,15 @@ export default function Main() {
 
     useEffect(() => {
         const fetchDataAndState = async () => {
-            const type = isIncomeState ? 'INCOME' : 'EXPENDITURE'
-            setBarChart(isIncomeState ? '収入金額' : '支出金額');
+            let type = '';
+            if (selectedCategory === 'total') {
+                type = 'TOTAL';
+            } else if (selectedCategory === 'income') {
+                type = 'INCOME';
+            } else if (selectedCategory === 'expense') {
+                type = 'EXPENDITURE';
+            }
+            setBarChart(selectedCategory === 'income' ? '収入金額' : selectedCategory === 'expense' ? '支出金額' : '収支合計金額');
             const data = await fetchDate(selectMonth,type);
             if(data){
                 setLabelList(data.labelList);
@@ -81,7 +88,7 @@ export default function Main() {
 
         fetchDataAndState();
 
-    },[selectMonth,isIncomeState]);
+    },[selectMonth,selectedCategory]);
 
     const checkSession = async () => {
         try{
@@ -165,34 +172,47 @@ export default function Main() {
 
                     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                         <h4 className="text-xl font-bold text-center mb-6">
-                            月間リアルタイム割合支出金額グラフ
+                            月間リアルタイム割合収支グラフ
                         </h4>
                         <div className="flex justify-center mb-6">
                             <button
                                 type="button"
                                 className={`
                                     px-3 py-1 rounded-l-lg text-sm font-semibold transition-colors duration-200
-                                    ${isIncomeState
+                                    ${selectedCategory === 'income'
                                         ? 'bg-green-600 text-white shadow-md'
                                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                     }
                                 `}
-                                onClick={() => setIsIncomeState(true)}
+                                onClick={() => setSelectedCategory('income')}
                             >
                                 収入
                             </button>
                             <button
                                 type="button"
                                 className={`
-                                    px-3 py-1 rounded-r-lg text-sm font-semibold transition-colors duration-200
-                                    ${!isIncomeState
+                                    px-3 py-1 rounded-rl-lg text-sm font-semibold transition-colors duration-200
+                                    ${selectedCategory === 'expense'
                                         ? 'bg-red-600 text-white shadow-md' // 支出が選択されている色
                                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300' // 収入が選択されていない色
                                     }
                                 `}
-                                onClick={() => setIsIncomeState(false)}
+                                onClick={() => setSelectedCategory('expense')}
                             >
                                 支出
+                            </button>
+                            <button
+                                type="button"
+                                className={`
+                                    px-3 py-1 rounded-r-lg text-sm font-semibold transition-colors duration-200
+                                    ${selectedCategory === 'total'
+                                        ? 'bg-red-600 text-white shadow-md' // 支出が選択されている色
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300' // 収入が選択されていない色
+                                    }
+                                `}
+                                onClick={() => setSelectedCategory('total')}
+                            >
+                                収支合計
                             </button>
                         </div>
                         <div className="flex flex-col md:flex-row">
@@ -219,7 +239,12 @@ export default function Main() {
                                             <Legend onClick={(e) => {
                                                 const payload = e.payload as { name: string; value: number; };
                                                 if (payload?.name) {
+                                                    if (payload.name !== '収支合計') {
                                                     handleLabelClick(payload.name);
+                                                    } else {
+                                                        // 収支合計がクリックされたが、何もしない場合
+                                                        console.log("収支合計ラベルがクリックされましたが、削除は無効です。");
+                                                    }
                                                 } else {
 
                                                 }
@@ -245,44 +270,48 @@ export default function Main() {
                     </div>
 
                     {/* 棒グラフセクション */}
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                        <h4 className="text-xl font-bold text-center mb-6">
+                    {barChartData.length > 0 ? (
+                        <div className="bg-white rounded-lg shadow-md p-6">   
+                            <h4 className="text-xl font-bold text-center mb-6">
                             日別支出グラフ
-                        </h4>
-                        <div className="h-[300px]">
-                            <ResponsiveContainer>
-                                <BarChart 
-                                    data={barChartData}
-                                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
-                                >
-                                    {/* グリッド線: グラフの背景に点線を表示 */}
-                                    <CartesianGrid strokeDasharray="3 3" />
+                            </h4>
+                            <div className="h-[300px]">
+                                <ResponsiveContainer>
+                                    <BarChart 
+                                        data={barChartData}
+                                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
+                                    >
+                                        {/* グリッド線: グラフの背景に点線を表示 */}
+                                        <CartesianGrid strokeDasharray="3 3" />
 
-                                    {/* X軸: 日付を表示する軸 */}
-                                    <XAxis dataKey="date" /> {/* barChartData内の 'date' プロパティをX軸のラベルに使う */}
+                                        {/* X軸: 日付を表示する軸 */}
+                                        <XAxis dataKey="date" /> {/* barChartData内の 'date' プロパティをX軸のラベルに使う */}
 
-                                    {/* Y軸: 金額を表示する軸 */}
-                                    <YAxis
-                                        tickFormatter={(value) => value.toLocaleString()} // 目盛りの表示形式を「10,000円」のように整形
-                                    />
+                                        {/* Y軸: 金額を表示する軸 */}
+                                        <YAxis
+                                            tickFormatter={(value) => value.toLocaleString()} // 目盛りの表示形式を「10,000円」のように整形
+                                        />
 
-                                    {/* ツールチップ: ホバー時に詳細情報を表示 */}
-                                    <Tooltip formatter={(value) => `${value.toLocaleString()}円`} /> {/* ツールチップの表示を「金額円」に整形 */}
+                                        {/* ツールチップ: ホバー時に詳細情報を表示 */}
+                                        <Tooltip formatter={(value) => `${value.toLocaleString()}円`} /> {/* ツールチップの表示を「金額円」に整形 */}
 
-                                    {/* 凡例: グラフのシリーズ名を表示 */}
-                                    <Legend />
+                                        {/* 凡例: グラフのシリーズ名を表示 */}
+                                        <Legend />
 
-                                    {/* 実際の棒グラフのデータ: 'amount'プロパティを使って棒を描画 */}
-                                    <Bar
-                                        dataKey="amount" // barChartData内の 'amount' プロパティを棒の高さに使う
-                                        fill="rgba(241, 107, 141, 1)" // 棒の色
-                                        name={barChart} // 凡例に表示される名前
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
+                                        {/* 実際の棒グラフのデータ: 'amount'プロパティを使って棒を描画 */}
+                                        <Bar
+                                            dataKey="amount" // barChartData内の 'amount' プロパティを棒の高さに使う
+                                            fill="rgba(241, 107, 141, 1)" // 棒の色
+                                            name={barChart} // 凡例に表示される名前
+                                        />
+                                    </BarChart>
+                                </ResponsiveContainer>
 
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        null
+                    )}
                 </div>
             </div>
         </Suspense>

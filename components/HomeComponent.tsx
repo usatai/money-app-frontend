@@ -21,8 +21,8 @@ const HomeComponent = () => {
                     </div>
                 
                     <div className="flex-shrink-0">
-                        <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
-                            ゲストログイン
+                        <button className="text-blue-600 hover:text-blue-800 underline hover:no-underline transition-all">
+                            ゲストログインはこちら
                         </button>
                     </div>
                 </div>
