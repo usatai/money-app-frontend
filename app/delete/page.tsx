@@ -11,10 +11,18 @@ const DeletePage = () => {
     const router = useRouter();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
+    const getAuthHeaders = () => {
+        const token = localStorage.getItem('token');
+        return {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        };
+    };
+
     useEffect(() => {
         const checkAuth = async () => {
             const res = await fetch('http://localhost:8080/api/user/check-auth',{
-                credentials : 'include'
+                headers: getAuthHeaders()
             })
             console.log(res.status);
             if(res.status !== 200){
@@ -50,10 +58,10 @@ const DeletePage = () => {
         e.preventDefault();
         setError(null);
 
-        fetch(`{apiUrl}/api/user/delete`,{
+        fetch(`http://localshot:8080/api/user/delete`,{
             method : 'POST',
             credentials : 'include',
-            headers : {'Content-Type' : 'application/json'},
+            headers : getAuthHeaders(),
             body : JSON.stringify({
                 label_name : formData.label_name
             })

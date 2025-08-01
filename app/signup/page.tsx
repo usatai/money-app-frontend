@@ -11,7 +11,14 @@ export default function Home() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
-      };
+    };
+
+    function getCsrfTokenFromCookie(): string | null {
+        const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+
+    const csrfToken = getCsrfTokenFromCookie();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -20,7 +27,10 @@ export default function Home() {
         try{
             const response = await fetch('http://localhost:8080/api/user/signup', {
                 method : 'POST',
-                headers : {'Content-Type':'application/json'},
+                headers : {
+                    'Content-Type':'application/json',
+                    'X-XSRF-TOKEN': csrfToken || '',
+                },
                 credentials : 'include',
                 body : JSON.stringify({
                     user_name : form.username,

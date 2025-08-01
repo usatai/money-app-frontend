@@ -1,57 +1,112 @@
 // app/login/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState ,useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 
 const LoginPage = () => {
-  const [form, setForm] = useState({ username: '', password: '' });
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const [form, setForm] = useState({ username: '', password: '' });
+    const [error, setError] = useState<string | null>(null);
+    const [csrfToken,setCsrfToken] = useState<string | null>(null);
+    const router = useRouter();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+    // useEffect(() => {
+    //     fetch('http://localhost:8080/api/user/csrf-token', {
+    //         credentials: 'include',
+    //     }).then(response => {
+    //         if (!response.ok) {
+    //             setError('csrfトークンの取得に失敗しました。');
+    //         } 
+    //         return response.json();
+    //     }).then(data => {
+    //         if (data.token) {
+    //             setCsrfToken(data.token);
+    //         } else {
+    //             console.error('CSRF token not found in response');
+    //         }
+    //     })
+    //     .catch(error => {
+    //         console.error('Error fetching CSRF token:', error);
+    //     });
+    // },[]);
 
-    try {
-        const response = await fetch('http://localhost:8080/api/user/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-            loginUser_name:form.username,
-            loginUser_password:form.password,
-        }),
-      });
-      
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
 
-      const data = await response.json();
+        // let currentCsrfToken = csrfToken;
+        // console.log(currentCsrfToken);
+        
+        // try {
+        //     // fetch を実行して、Set-Cookieヘッダーで新しいXSRF-TOKENを取得
+        //     const csrfResponse = await fetch('http://localhost:8080/api/user/csrf-token', {
+        //         credentials: 'include',
+        //     });
 
-      if (response.ok) {
-        console.log("user_id",data.userId);
-        router.push(`/main`);
-        // ?userId=${data.userId}
-      }else{
-        if(data.errors && Array.isArray(data.errors)){
-            setError(data.errors.join(', '));
+        //     if (!csrfResponse.ok) {
+        //         // CSRFトークン取得自体が失敗した場合のハンドリング
+        //         console.error('Failed to re-fetch CSRF token. Status:', csrfResponse.status);
+        //         setError('認証に失敗しました。時間をおいて再試行してください。');
+        //         return;
+        //     }
+
+        //     const {token} = await csrfResponse.json();
+        //     setCsrfToken(token);
+
+        // } catch (error) {
+        //     console.error('CSRFトークンの再取得中にネットワークエラー:', error);
+        //     setError('ネットワークエラーが発生しました。');
+        //     return;
+        // }
+
+        // // トークンがnullの場合の最終チェック
+        // if (!currentCsrfToken) {
+        //     setError('CSRFトークンが取得できませんでした。');
+        //     return;
+        // }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/user/login', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                // 'X-XSRF-TOKEN': csrfToken || '',
+            },
+            // credentials: 'include',
+            body: JSON.stringify({
+                loginUser_name:form.username,
+                loginUser_password:form.password,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('token',data.token);
+            console.log("user_id",data.userId);
+            router.push(`/main`);
+            // ?userId=${data.userId}
         }else{
-            setError("不明なエラー"); // エラーメッセージを設定
+            if(data.errors && Array.isArray(data.errors)){
+                setError(data.errors.join(', '));
+            }else{
+                setError("不明なエラー"); // エラーメッセージを設定
+            }
+            return;
         }
-        return;
-      }
 
-    } catch (e) {
-        if(e instanceof Error){
-            setError(e.message);
+        } catch (e) {
+            if(e instanceof Error){
+                setError(e.message);
+            }
         }
-    }
-  };
+    };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">

@@ -10,14 +10,17 @@ const InputPage = () => {
     const router = useRouter();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
+    const currentDate = localStorage.getItem('currentDate');
+
     useEffect(() => {
         const checkAuth = async () => {
             // ローカル開発用
             const res = await fetch('http://localhost:8080/api/user/check-auth',{
-                credentials : 'include'
+                headers: getAuthHeaders()
             })
             console.log(res.status);
             if(res.status !== 200){
+                localStorage.removeItem("token");
                 router.push("/");
             }else{
                 setLoding(false);
@@ -30,40 +33,51 @@ const InputPage = () => {
         setForm({...form,[e.target.name]:e.target.value});
     }
 
+   const getAuthHeaders = () => {
+        const token = localStorage.getItem('token');
+        return {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        };
+    };
+
     const labelFormSubmit = async (e:React.FormEvent) => {
         e.preventDefault();
         setError(null);
 
         try{
-            const response = await fetch('http://localhost:8080/api/user/input',{
-                method : "POST",
-                headers : {'Content-Type':'application/json'},
-                credentials : 'include',
-                body : JSON.stringify({
-                    label_name:form.labelName,
-                    type:form.type
-                }),
+            const response = await fetch("http://localhost:8080/api/user/input", {
+            method: "POST",
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                label_name: form.labelName,
+                type: form.type,
+                currentDate: currentDate
+            }),
             });
 
-        const data = await response.json();
+            if (response.ok) {
+                const data = await response.json();
+                router.push(`/main?message=${encodeURIComponent(data.message)}`);
+            } else {
+                let data = {};
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    console.warn("JSON解析に失敗:", e);
+                }
 
-        if (response.ok) {
-            router.push(`/main?message=${encodeURIComponent(data.message)}`);
-            // ?userId=${data.userId}
-        }else{
-            if(data.errors && Array.isArray(data.errors)){
-                setError(data.errors.join(', '));
-            }else{
-                setError("不明なエラー"); // エラーメッセージを設定
+                if ("errors" in data && Array.isArray(data.errors)) {
+                    setError((data as any).errors.join(", "));
+                } else {
+                    setError("不明なエラーが発生しました");
+                }
             }
-            return;
+        } catch (e) {
+            if (e instanceof Error) {
+            setError(`通信エラー: ${e.message}`);
         }
-                        
-        }catch (e) {
-            if(e instanceof Error){
-                setError(e.message);
-            }
-        }
+    }
 
     }
 

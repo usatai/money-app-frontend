@@ -6,23 +6,54 @@ const MoneyPage = () => {
     const [moneyList,setMoneyList] = useState<string[]>([]);
     const [error,setError] = useState<string | null>();
     const [isLoading,setLoding] = useState(true);
+    const [currentMonthDate, setCurrentMonthDate] = useState<number | undefined>(7);
     const router = useRouter();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
     // フォームの状態管理
     const [formData, setFormData] = useState({
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split('T')[0], 
         incomeExpenditureType: 'INCOME',
         label_name: '',
         money_price: ''
     });
 
+    // 現在の日時
+    const nowDate = new Date().toISOString().slice(0,10);
+
+    let currentDate : string | null;
+    let currentMonth : number;
+
+    useEffect(() => {
+        currentDate = localStorage.getItem('currentDate');
+        console.log(currentDate);
+        if (currentDate !== null) {
+            setFormData((prev) => ({
+                ...prev,
+                date: `${currentDate}-01`, // 例: "2025-07" → "2025-07-01"
+            }));
+            const month = currentDate.split("-")[1];
+            currentMonth = parseInt(month, 10);
+            setCurrentMonthDate(currentMonth);
+        }
+    },[])
+    
+    const getAuthHeaders = () => {
+        const token = localStorage.getItem('token');
+        return {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        };
+    };
+
     useEffect(() => {
         const checkAuth = async () => {
             const res = await fetch('http://localhost:8080/api/user/check-auth', {
-                credentials : 'include'
+                headers : getAuthHeaders(),
             })
             console.log(res.status);
             if(res.status !== 200){
+                localStorage.removeItem('token');
                 router.push("/");
             }else{
                 setLoding(false);
@@ -44,13 +75,12 @@ const MoneyPage = () => {
         try{
             const response = await fetch('http://localhost:8080/api/user/money',{
                 method : 'POST',
-                credentials : 'include',
-                headers : { 'Content-Type': 'application/json' },
+                headers : getAuthHeaders(),
                 body : JSON.stringify({
                     date : formData.date,
                     incomeExpenditureType: formData.incomeExpenditureType,
                     label_name : formData.label_name,
-                    money_price : formData.money_price
+                    money_price : formData.money_price,
                 }),
             });
 
@@ -73,9 +103,9 @@ const MoneyPage = () => {
     useEffect(() => {
         const type = formData.incomeExpenditureType;
         console.log(type);
-        fetch(`http://localhost:8080/api/user/money?type=${type}`, {
+        fetch(`http://localhost:8080/api/user/money?type=${type}&nowDate=${nowDate}&currentMonth=${currentMonthDate}`, {
             method : 'GET',
-            credentials : 'include',
+            headers : getAuthHeaders()
         })
         .then((response) => {
             if(!response.ok){
@@ -84,7 +114,6 @@ const MoneyPage = () => {
             return response.json();
         })
         .then((data) => {
-            console.log(data.userLabel);
             setMoneyList(data.userLabel);
         })
         .catch((error) => {

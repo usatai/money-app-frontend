@@ -33,20 +33,25 @@ export default function Main() {
     const [selectedCategory, setSelectedCategory] = useState<'total' | 'income' | 'expense'>('income');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [barChart,setBarChart] = useState('収入');
-
-    // const handleToggle = () => {
-    //     setIsIncomeState(prevState => !prevState);
-    // };
+    const [csrfToken,setCsrfToken] = useState<string | null>(null);
 
     const handleLabelClick = (label: string) => {
         setSelectedLabel(label);
         setIsDialogOpen(true); // ダイアログを開く
     };
 
+    const getAuthHeaders = () => {
+        const token = localStorage.getItem('token');
+        return {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        };
+    };
+
     const fetchDate = async (selectMonth: string,type: string) => {
         try {
             const response = await fetch(`http://localhost:8080/api/user/main?&selectMonth=${selectMonth}&type=${type}`,{
-                credentials:'include',
+                headers: getAuthHeaders()
             });
 
             if (response.status === 400) {
@@ -59,7 +64,8 @@ export default function Main() {
 
         }catch(error){
             console.error('データ取得エラー:', error);
-            return null;
+            localStorage.removeItem("token");
+            router.push("/");
         }
     };
 
@@ -82,6 +88,7 @@ export default function Main() {
                 setMoneyNowList(data.moneyNowList);
                 setMoneyDate(data.moneyDate);
                 setUserMonthList(data.userMonthList);
+                localStorage.setItem('currentDate',data.monthDate);
             }
             setIsLoading(false);
         };
@@ -92,16 +99,19 @@ export default function Main() {
 
     const checkSession = async () => {
         try{
-            const response = await fetch('http://localhost:8080/api/user/check-session',{
-                credentials : 'include'
+            const response = await fetch('http://localhost:8080/api/user/check-auth',{
+                headers: getAuthHeaders()
             })
 
             if(response.status === 401){
                 console.log("セッションが切れました。ログアウトします");
+                localStorage.removeItem("token");
                 router.push("/");
             }
         }catch(e){
             console.error("セッションチェック中にエラーが発生しました",e);
+            localStorage.removeItem("token");
+            router.push("/");
         }
     };
 
@@ -114,8 +124,7 @@ export default function Main() {
     const handleConfirmDelete = async () => {
         const response = await fetch ('http://localhost:8080/api/user/delete',{
             method : 'POST',
-            credentials : 'include',
-            headers : {'Content-Type' : 'application/json'},
+            headers : getAuthHeaders(),
             body : JSON.stringify({
                 label_name : selectedLabel
             })
