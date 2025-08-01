@@ -50,7 +50,6 @@ export default function Navbar() {
               <Link href="/main" className="hover:text-blue-600 p-2">グラフ画面</Link>
               <Link href="/input" className="hover:text-blue-600 p-2">収支カテゴリー登録</Link>
               <Link href="/money" className="hover:text-blue-600 p-2">収支金額登録</Link>
-              <Link href="/delete" className="hover:text-blue-600 p-2">カテゴリー/登録金額削除</Link>
               <LogoutButton />
             </div>
           </div>
@@ -62,7 +61,6 @@ export default function Navbar() {
             <Link href="/main" className="hover:text-blue-600 p-2">グラフ画面</Link>
             <Link href="/input" className="hover:text-blue-600 p-2">収支カテゴリー登録</Link>
             <Link href="/money" className="hover:text-blue-600 p-2">収支金額登録</Link>
-            <Link href="/delete" className="hover:text-blue-600 p-2">カテゴリー/登録金額削除</Link>
             <LogoutButton />
           </div>
         </div>

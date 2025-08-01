@@ -126,7 +126,8 @@ export default function Main() {
             method : 'POST',
             headers : getAuthHeaders(),
             body : JSON.stringify({
-                label_name : selectedLabel
+                label_name : selectedLabel,
+                currentDate: localStorage.getItem('currentDate')
             })
         })
         // 例: データから selectedLabel に一致するものをフィルタリングして状態更新
