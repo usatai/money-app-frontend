@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState ,useEffect} from "react";
 
 const InputPage = () => {
-    const [form,setForm] = useState({labelName: '',type:''});
+    const [form,setForm] = useState({labelName: '',type:'INCOME'});
     const [error,setError] = useState<string | null>(null);
     const [isLoading,setLoding] = useState(true);
     const router = useRouter();

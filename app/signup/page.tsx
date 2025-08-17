@@ -13,13 +13,6 @@ export default function Home() {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    function getCsrfTokenFromCookie(): string | null {
-        const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
-        return match ? decodeURIComponent(match[1]) : null;
-    }
-
-    const csrfToken = getCsrfTokenFromCookie();
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
@@ -29,7 +22,6 @@ export default function Home() {
                 method : 'POST',
                 headers : {
                     'Content-Type':'application/json',
-                    'X-XSRF-TOKEN': csrfToken || '',
                 },
                 credentials : 'include',
                 body : JSON.stringify({
@@ -42,6 +34,7 @@ export default function Home() {
             const data = await response.json();
 
             if(response.ok){
+                localStorage.setItem('token',data.token);
                 router.push("/main");
             } else {
                 if(data.errors && Array.isArray(data.errors)){

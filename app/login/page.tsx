@@ -76,9 +76,8 @@ const LoginPage = () => {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                // 'X-XSRF-TOKEN': csrfToken || '',
             },
-            // credentials: 'include',
+            credentials: 'include',
             body: JSON.stringify({
                 loginUser_name:form.username,
                 loginUser_password:form.password,
