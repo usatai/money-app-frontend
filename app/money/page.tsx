@@ -6,7 +6,7 @@ const MoneyPage = () => {
     const [moneyList,setMoneyList] = useState<string[]>([]);
     const [error,setError] = useState<string | null>();
     const [isLoading,setLoding] = useState(true);
-    const [currentMonthDate, setCurrentMonthDate] = useState<number | undefined>(7);
+    const [currentMonthDate, setCurrentMonthDate] = useState<number | undefined>(new Date().getMonth() + 1);
     const router = useRouter();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -21,20 +21,16 @@ const MoneyPage = () => {
     // 現在の日時
     const nowDate = new Date().toISOString().slice(0,10);
 
-    let currentDate : string | null;
-    let currentMonth : number;
-
     useEffect(() => {
-        currentDate = localStorage.getItem('currentDate');
+        const currentDate = localStorage.getItem('currentDate');
         console.log(currentDate);
-        if (currentDate !== null) {
+        if (currentDate) {
             setFormData((prev) => ({
                 ...prev,
                 date: `${currentDate}-01`, // 例: "2025-07" → "2025-07-01"
             }));
             const month = currentDate.split("-")[1];
-            currentMonth = parseInt(month, 10);
-            setCurrentMonthDate(currentMonth);
+            setCurrentMonthDate(parseInt(month, 10));
         }
     },[])
     
@@ -66,6 +62,28 @@ const MoneyPage = () => {
     const formatMoneyInput = (value: string) => {
         return value.replace(/,/g, '');
     };
+
+    useEffect(() => {
+        const type = formData.incomeExpenditureType;
+        console.log(currentMonthDate);
+        console.log(type);
+        fetch(`http://localhost:8080/api/user/money?type=${type}&nowDate=${nowDate}&currentMonth=${currentMonthDate}`, {
+            method : 'GET',
+            headers : getAuthHeaders()
+        })
+        .then((response) => {
+            if(!response.ok){
+                throw new Error("データの取得に失敗しました");
+            }
+            return response.json();
+        })
+        .then((data) => {
+            setMoneyList(data.userLabel);
+        })
+        .catch((error) => {
+            setError(error.message);  // エラー処理
+        });
+    },[formData.incomeExpenditureType,currentMonthDate])
 
     // フォーム送信処理
     const handleSubmit = async (e: React.FormEvent) => {
@@ -99,27 +117,6 @@ const MoneyPage = () => {
             }
         }
     };
-
-    useEffect(() => {
-        const type = formData.incomeExpenditureType;
-        console.log(type);
-        fetch(`http://localhost:8080/api/user/money?type=${type}&nowDate=${nowDate}&currentMonth=${currentMonthDate}`, {
-            method : 'GET',
-            headers : getAuthHeaders()
-        })
-        .then((response) => {
-            if(!response.ok){
-                throw new Error("データの取得に失敗しました");
-            }
-            return response.json();
-        })
-        .then((data) => {
-            setMoneyList(data.userLabel);
-        })
-        .catch((error) => {
-            setError(error.message);  // エラー処理
-        });
-    },[formData.incomeExpenditureType])
 
     if (isLoading) return <p className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50'>Loading...</p>;
 
