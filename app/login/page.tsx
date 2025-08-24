@@ -16,60 +16,9 @@ const LoginPage = () => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    // useEffect(() => {
-    //     fetch('http://localhost:8080/api/user/csrf-token', {
-    //         credentials: 'include',
-    //     }).then(response => {
-    //         if (!response.ok) {
-    //             setError('csrfトークンの取得に失敗しました。');
-    //         } 
-    //         return response.json();
-    //     }).then(data => {
-    //         if (data.token) {
-    //             setCsrfToken(data.token);
-    //         } else {
-    //             console.error('CSRF token not found in response');
-    //         }
-    //     })
-    //     .catch(error => {
-    //         console.error('Error fetching CSRF token:', error);
-    //     });
-    // },[]);
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
-
-        // let currentCsrfToken = csrfToken;
-        // console.log(currentCsrfToken);
-        
-        // try {
-        //     // fetch を実行して、Set-Cookieヘッダーで新しいXSRF-TOKENを取得
-        //     const csrfResponse = await fetch('http://localhost:8080/api/user/csrf-token', {
-        //         credentials: 'include',
-        //     });
-
-        //     if (!csrfResponse.ok) {
-        //         // CSRFトークン取得自体が失敗した場合のハンドリング
-        //         console.error('Failed to re-fetch CSRF token. Status:', csrfResponse.status);
-        //         setError('認証に失敗しました。時間をおいて再試行してください。');
-        //         return;
-        //     }
-
-        //     const {token} = await csrfResponse.json();
-        //     setCsrfToken(token);
-
-        // } catch (error) {
-        //     console.error('CSRFトークンの再取得中にネットワークエラー:', error);
-        //     setError('ネットワークエラーが発生しました。');
-        //     return;
-        // }
-
-        // // トークンがnullの場合の最終チェック
-        // if (!currentCsrfToken) {
-        //     setError('CSRFトークンが取得できませんでした。');
-        //     return;
-        // }
 
         try {
             const response = await fetch('http://localhost:8080/api/user/login', {
@@ -87,7 +36,6 @@ const LoginPage = () => {
         const data = await response.json();
 
         if (response.ok) {
-            localStorage.setItem('token',data.token);
             console.log("user_id",data.userId);
             router.push(`/main`);
             // ?userId=${data.userId}

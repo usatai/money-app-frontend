@@ -11,7 +11,7 @@ import Navbar from '@/components/Navbar';
 import { chartColors } from '@/components/ColorPalette';
 import SuccessMessage from '@/components/SuccessMessage';
 import ConfirmDialog from '@/components/ConfirmDialog';
-import * as Dialog from '@radix-ui/react-dialog';
+import { api } from '../lib/api';
 
 export default function Main() {
     const getCurrentYearMonth = () => {
@@ -40,101 +40,59 @@ export default function Main() {
         setIsDialogOpen(true); // ダイアログを開く
     };
 
-    const getAuthHeaders = () => {
-        const token = localStorage.getItem('token');
-        return {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-        };
-    };
-
     const fetchDate = async (selectMonth: string,type: string) => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/user/main?&selectMonth=${selectMonth}&type=${type}`,{
-                headers: getAuthHeaders()
-            });
-
-            if (response.status === 400) {
-                router.replace('/'); // 未ログインならログイン画面へ
-                return;
-            }
-
-            if (!response.ok) throw new Error('データ取得に失敗しました');
-            return await response.json();
-
-        }catch(error){
-            console.error('データ取得エラー:', error);
-            localStorage.removeItem("token");
-            router.push("/");
-        }
+        const q = new globalThis.URLSearchParams({ selectMonth,type }).toString();
+        return await api(`/api/user/main?${q}`);
     };
 
     useEffect(() => {
-        const fetchDataAndState = async () => {
-            let type = '';
-            if (selectedCategory === 'total') {
-                type = 'TOTAL';
-            } else if (selectedCategory === 'income') {
-                type = 'INCOME';
-            } else if (selectedCategory === 'expense') {
-                type = 'EXPENDITURE';
+        (async () => {
+            let type = selectedCategory === 'total' ? 'TOTAL' 
+                : selectedCategory === 'income' ? 'INCOME' : 'EXPENDITURE'
+            
+            setBarChart(selectedCategory === 'income' ? '収入金額' 
+                : selectedCategory === 'expense' ? '支出金額' : '収支合計金額');
+            
+            try {
+                const data = await fetchDate(selectMonth, type);
+                if (data) {
+                    setLabelList(data.labelList);
+                    setMoneyList(data.moneyList);
+                    setMoneySum(data.moneySum);
+                    setMoneyNowList(data.moneyNowList);
+                    setMoneyDate(data.moneyDate);
+                    setUserMonthList(data.userMonthList);
+                    localStorage.setItem('currentDate', data.monthDate); // これは機密ではないのでOK
+                }
+            } catch (e) {
+                console.error('データ取得エラー:', e);
+                router.push('/'); // 401でrefreshも失敗した場合はここに来る想定
+            } finally {
+                setIsLoading(false);
             }
-            setBarChart(selectedCategory === 'income' ? '収入金額' : selectedCategory === 'expense' ? '支出金額' : '収支合計金額');
-            const data = await fetchDate(selectMonth,type);
-            if(data){
-                setLabelList(data.labelList);
-                setMoneyList(data.moneyList);
-                setMoneySum(data.moneySum);
-                setMoneyNowList(data.moneyNowList);
-                setMoneyDate(data.moneyDate);
-                setUserMonthList(data.userMonthList);
-                localStorage.setItem('currentDate',data.monthDate);
-            }
-            setIsLoading(false);
-        };
-
-        fetchDataAndState();
-
+        })();
     },[selectMonth,selectedCategory]);
-
-    const checkSession = async () => {
-        try{
-            const response = await fetch('http://localhost:8080/api/user/check-auth',{
-                headers: getAuthHeaders()
-            })
-
-            if(response.status === 401){
-                console.log("セッションが切れました。ログアウトします");
-                localStorage.removeItem("token");
-                router.push("/");
-            }
-        }catch(e){
-            console.error("セッションチェック中にエラーが発生しました",e);
-            localStorage.removeItem("token");
-            router.push("/");
-        }
-    };
-
-    useEffect(() => {
-        const interval = setInterval(checkSession,2 * 60 * 1000);
-        return () => clearInterval(interval);
-    },[router]);
 
     // 削除確認のハンドラ
     const handleConfirmDelete = async () => {
-        const response = await fetch ('http://localhost:8080/api/user/delete',{
-            method : 'POST',
-            headers : getAuthHeaders(),
-            body : JSON.stringify({
-                label_name : selectedLabel,
-                currentDate: localStorage.getItem('currentDate')
+        try {
+            const response = await api ('/api/user/delete',{
+                method : 'POST',
+                body : JSON.stringify({
+                    label_name : selectedLabel,
+                    currentDate: localStorage.getItem('currentDate')
+                })
             })
-        })
-        // 例: データから selectedLabel に一致するものをフィルタリングして状態更新
-        console.log(`「${selectedLabel}」を削除しました！`);
-        setIsDialogOpen(false); // ダイアログを閉じる
-        setSelectedLabel(null); // 選択状態をリセット
-        window.location.reload()
+            // 例: データから selectedLabel に一致するものをフィルタリングして状態更新
+            console.log(`「${selectedLabel}」を削除しました！`);
+            setIsDialogOpen(false); // ダイアログを閉じる
+            setSelectedLabel(null); // 選択状態をリセット
+            window.location.reload()
+
+        } catch (e) {
+            console.error('削除エラー:', e);
+            router.push('/'); // 認証エラーならログインへ
+        }
     };
 
     const handleCloseDialog = () => {
