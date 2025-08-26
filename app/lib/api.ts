@@ -3,12 +3,16 @@ const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 export async function api(path: string, init: RequestInit = {}) {
   const method = (init.method ?? 'GET').toUpperCase();
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...(init.headers as Record<string, string> || {}),
   };
 
   // CSRFを有効化しているなら、書き込み系でヘッダ付与
   if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    const xsrf = getCookie('XSRF-TOKEN');
+    if (xsrf) headers['X-XSRF-TOKEN'] = xsrf;
+  }
+
+  if (['POST','PUT','PATCH','DELETE'].includes(method)) {
     const xsrf = getCookie('XSRF-TOKEN');
     if (xsrf) headers['X-XSRF-TOKEN'] = xsrf;
   }

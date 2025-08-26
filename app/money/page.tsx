@@ -1,12 +1,13 @@
 'use client';
 import { useRouter } from "next/navigation";
 import { useState,useEffect} from "react";
+import { api } from "../lib/api";
 
 const MoneyPage = () => {
     const [moneyList,setMoneyList] = useState<string[]>([]);
     const [error,setError] = useState<string | null>();
     const [isLoading,setLoding] = useState(true);
-    const [currentMonthDate, setCurrentMonthDate] = useState<number | undefined>(new Date().getMonth() + 1);
+    const [currentMonthDate, setCurrentMonthDate] = useState<number>(new Date().getMonth() + 1);
     const router = useRouter();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -34,29 +35,27 @@ const MoneyPage = () => {
         }
     },[])
     
-    const getAuthHeaders = () => {
-        const token = localStorage.getItem('token');
-        return {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-        };
-    };
+    // const getAuthHeaders = () => {
+    //     return {
+    //         'Content-Type': 'application/json',
+    //     };
+    // };
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            const res = await fetch('http://localhost:8080/api/user/check-auth', {
-                headers : getAuthHeaders(),
-            })
-            console.log(res.status);
-            if(res.status !== 200){
-                localStorage.removeItem('token');
-                router.push("/");
-            }else{
-                setLoding(false);
-            }
-        }
-        checkAuth();
-    },[router])
+    // useEffect(() => {
+    //     const checkAuth = async () => {
+    //         const res = await fetch('http://localhost:8080/api/user/check-auth', {
+    //             headers : getAuthHeaders(),
+    //         })
+    //         console.log(res.status);
+    //         if(res.status !== 200){
+    //             localStorage.removeItem('token');
+    //             router.push("/");
+    //         }else{
+    //             setLoding(false);
+    //         }
+    //     }
+    //     checkAuth();
+    // },[router])
 
     // 金額のフォーマット処理
     const formatMoneyInput = (value: string) => {
@@ -67,23 +66,38 @@ const MoneyPage = () => {
         const type = formData.incomeExpenditureType;
         console.log(currentMonthDate);
         console.log(type);
-        fetch(`http://localhost:8080/api/user/money?type=${type}&nowDate=${nowDate}&currentMonth=${currentMonthDate}`, {
-            method : 'GET',
-            headers : getAuthHeaders()
-        })
-        .then((response) => {
-            if(!response.ok){
-                throw new Error("データの取得に失敗しました");
-            }
-            return response.json();
-        })
-        .then((data) => {
-            setMoneyList(data.userLabel);
-        })
-        .catch((error) => {
-            setError(error.message);  // エラー処理
-        });
-    },[formData.incomeExpenditureType,currentMonthDate])
+        const params = new globalThis.URLSearchParams({ 
+            type,
+            nowDate,
+            currentMonth: String(currentMonthDate)
+        }).toString();
+
+        api(`/api/user/money?${params}`)
+            .then((data) => {
+                setLoding(false);
+                setMoneyList(data.userLabel);
+            })
+            .catch((error) => {
+                setLoding(false);
+                setError(error.message);
+            });
+        
+        // })
+        // .then((response) => {
+        //     if(!response.ok){
+        //         throw new Error("データの取得に失敗しました");
+        //     }
+        //     return response.json();
+        // })
+        // .then((data) => {
+        //     setLoding(false);
+        //     setMoneyList(data.userLabel);
+        // })
+        // .catch((error) => {
+        //     setLoding(false);
+        //     setError(error.message);  // エラー処理
+        // });
+        },[formData.incomeExpenditureType,currentMonthDate])
 
     // フォーム送信処理
     const handleSubmit = async (e: React.FormEvent) => {
@@ -91,9 +105,10 @@ const MoneyPage = () => {
         setError(null);
 
         try{
-            const response = await fetch('http://localhost:8080/api/user/money',{
+            const response = await api('/api/user/money',{
                 method : 'POST',
-                headers : getAuthHeaders(),
+                headers : {'Content-Type' : 'application/json'},
+                credentials: 'include',
                 body : JSON.stringify({
                     date : formData.date,
                     incomeExpenditureType: formData.incomeExpenditureType,
