@@ -110,6 +110,11 @@ export default function Main() {
         date: date,
         amount: moneyNowList[index],
     }));
+
+    const barTotalData = [{name: '月間収支',収入: 40000,支出:20000}];
+
+    const balance =  10000 // 収支合計（差額）
+
   
     if (isLoading) return <p className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50'>Loading...</p>;
 
@@ -142,6 +147,14 @@ export default function Main() {
                         <h4 className="text-xl font-bold text-center mb-6">
                             月間リアルタイム割合収支グラフ
                         </h4>
+                        {/* --- 2. 計算結果を描画する --- */}
+                        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                            <h3 style={{ margin: 0 }}>TOTAL</h3>
+                            <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'red', margin: 0 }}>
+                                {/* toLocaleStringを使って数値を円表記にフォーマット */}
+                                {balance.toLocaleString('ja-JP', { style: 'currency', currency: 'JPY' })}
+                            </p>
+                        </div>
                         <div className="flex justify-center mb-6">
                             <button
                                 type="button"
@@ -187,6 +200,17 @@ export default function Main() {
                            {pieChartData.length > 0 ? (
                                 <div style={{ width: '100%', height: 250 }}>
                                     <ResponsiveContainer>
+                                        {selectedCategory === 'total' ? (
+                                            <BarChart data={barTotalData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                                                <CartesianGrid strokeDasharray="3 3" />
+                                                <XAxis dataKey="name" />
+                                                <YAxis />
+                                                <Tooltip />
+                                                <Legend />
+                                                <Bar dataKey="収入" fill="#8884d8" name="収入" />
+                                                <Bar dataKey="支出" fill="#82ca9d" name="支出" />
+                                            </BarChart>
+                                        ) : (
                                         <PieChart>
                                             <Pie
                                                 data={pieChartData}
@@ -208,7 +232,7 @@ export default function Main() {
                                                 const payload = e.payload as { name: string; value: number; };
                                                 if (payload?.name) {
                                                     if (payload.name !== '収支合計') {
-                                                    handleLabelClick(payload.name);
+                                                        handleLabelClick(payload.name);
                                                     } else {
                                                         // 収支合計がクリックされたが、何もしない場合
                                                         console.log("収支合計ラベルがクリックされましたが、削除は無効です。");
@@ -218,6 +242,7 @@ export default function Main() {
                                                 }
                                             }}/>
                                         </PieChart>
+                                        )}
                                     </ResponsiveContainer>
                                     <ConfirmDialog
                                         isOpen={isDialogOpen}

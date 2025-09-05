@@ -3,6 +3,7 @@
 
 import { useState ,useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { api } from '../lib/api'; 
 
 
 const LoginPage = () => {
@@ -15,27 +16,21 @@ const LoginPage = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
-
+    
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
 
         try {
-            const response = await fetch('http://localhost:8080/api/user/login', {
+            const data = await api('/api/user/login', {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
             body: JSON.stringify({
                 loginUser_name:form.username,
                 loginUser_password:form.password,
             }),
         });
 
-        const data = await response.json();
-
-        if (response.ok) {
+        if (data) {
             console.log("user_id",data.userId);
             router.push(`/main`);
             // ?userId=${data.userId}

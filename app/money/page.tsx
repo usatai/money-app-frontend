@@ -105,10 +105,8 @@ const MoneyPage = () => {
         setError(null);
 
         try{
-            const response = await api('/api/user/money',{
+            const data = await api('/api/user/money',{
                 method : 'POST',
-                headers : {'Content-Type' : 'application/json'},
-                credentials: 'include',
                 body : JSON.stringify({
                     date : formData.date,
                     incomeExpenditureType: formData.incomeExpenditureType,
@@ -117,9 +115,7 @@ const MoneyPage = () => {
                 }),
             });
 
-            const data = await response.json();
-
-            if(response.ok){
+            if(data){
                 router.push("/main");
             } else {
                 if(data.errors){

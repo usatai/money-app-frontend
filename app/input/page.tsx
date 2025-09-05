@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState ,useEffect} from "react";
+import { api } from "../lib/api"
 
 const InputPage = () => {
     const [form,setForm] = useState({labelName: '',type:'INCOME'});
@@ -9,46 +10,40 @@ const InputPage = () => {
     const [isLoading,setLoding] = useState(true);
     const router = useRouter();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
     const currentDate = localStorage.getItem('currentDate');
 
+    // ローディング用
     useEffect(() => {
-        const checkAuth = async () => {
-            // ローカル開発用
-            const res = await fetch('http://localhost:8080/api/user/check-auth',{
-                headers: getAuthHeaders()
-            })
-            console.log(res.status);
-            if(res.status !== 200){
-                localStorage.removeItem("token");
-                router.push("/");
-            }else{
-                setLoding(false);
+        setLoding(false);
+    },[])
+
+    useEffect(() => {
+        // ページが最初に表示された時に一度だけ実行
+        const prepareCsrfCookie = async () => {
+            try {
+                // バックエンドにGETリクエストを送り、XSRF-TOKENクッキーをもらう
+                await api('/api/user/csrf');
+                console.log('✅ mainページでCSRFクッキーの準備ができました。');
+            } catch (error) {
+                console.error('CSRFクッキーの準備に失敗しました:', error);
+                // エラーハンドリング
             }
-        }
-        checkAuth();
-    },[router])
+        };
+
+        prepareCsrfCookie();
+    }, []); // 空の配列[]で初回ロード時のみ実行
 
     const labelSet = (e:React.ChangeEvent<HTMLInputElement>) => {
         setForm({...form,[e.target.name]:e.target.value});
     }
-
-   const getAuthHeaders = () => {
-        const token = localStorage.getItem('token');
-        return {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-        };
-    };
 
     const labelFormSubmit = async (e:React.FormEvent) => {
         e.preventDefault();
         setError(null);
 
         try{
-            const response = await fetch("http://localhost:8080/api/user/input", {
+            const data = await api("/api/user/input", {
             method: "POST",
-            headers: getAuthHeaders(),
             body: JSON.stringify({
                 label_name: form.labelName,
                 type: form.type,
@@ -56,17 +51,10 @@ const InputPage = () => {
             }),
             });
 
-            if (response.ok) {
-                const data = await response.json();
+            if (data) {
                 router.push(`/main?message=${encodeURIComponent(data.message)}`);
             } else {
                 let data = {};
-                try {
-                    data = await response.json();
-                } catch (e) {
-                    console.warn("JSON解析に失敗:", e);
-                }
-
                 if ("errors" in data && Array.isArray(data.errors)) {
                     setError((data as any).errors.join(", "));
                 } else {
