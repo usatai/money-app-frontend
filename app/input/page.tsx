@@ -2,29 +2,36 @@
 
 import { useRouter } from "next/navigation";
 import { useState ,useEffect} from "react";
+import { api } from "../lib/api"
 
 const InputPage = () => {
-    const [form,setForm] = useState({labelName: ''});
+    const [form,setForm] = useState({labelName: '',type:'INCOME'});
     const [error,setError] = useState<string | null>(null);
     const [isLoading,setLoding] = useState(true);
     const router = useRouter();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const currentDate = localStorage.getItem('currentDate');
+
+    // ローディング用
+    useEffect(() => {
+        setLoding(false);
+    },[])
 
     useEffect(() => {
-        const checkAuth = async () => {
-            const res = await fetch('http://localhost:8080/api/user/check-auth',{
-            // const res = await fetch(`${apiUrl}/api/user/check-auth`,{
-                credentials : 'include'
-            })
-            console.log(res.status);
-            if(res.status !== 200){
-                router.push("/");
-            }else{
-                setLoding(false);
+        // ページが最初に表示された時に一度だけ実行
+        const prepareCsrfCookie = async () => {
+            try {
+                // バックエンドにGETリクエストを送り、XSRF-TOKENクッキーをもらう
+                await api('/api/user/csrf');
+                console.log('✅ mainページでCSRFクッキーの準備ができました。');
+            } catch (error) {
+                console.error('CSRFクッキーの準備に失敗しました:', error);
+                // エラーハンドリング
             }
-        }
-        checkAuth();
-    },[router])
+        };
+
+        prepareCsrfCookie();
+    }, []); // 空の配列[]で初回ロード時のみ実行
 
     const labelSet = (e:React.ChangeEvent<HTMLInputElement>) => {
         setForm({...form,[e.target.name]:e.target.value});
@@ -35,35 +42,30 @@ const InputPage = () => {
         setError(null);
 
         try{
-            const response = await fetch('http://localhost:8080/api/user/input',{
-            // const response = await fetch(`${apiUrl}/api/user/input`,{
-                method : "POST",
-                headers : {'Content-Type':'application/json'},
-                credentials : 'include',
-                body : JSON.stringify({
-                    label_name:form.labelName
-                }),
+            const data = await api("/api/user/input", {
+            method: "POST",
+            body: JSON.stringify({
+                label_name: form.labelName,
+                type: form.type,
+                currentDate: currentDate
+            }),
             });
 
-        const data = await response.json();
-
-        if (response.ok) {
-            router.push(`/main?message=${encodeURIComponent(data.message)}`);
-            // ?userId=${data.userId}
-        }else{
-            if(data.errors && Array.isArray(data.errors)){
-                setError(data.errors.join(', '));
-            }else{
-                setError("不明なエラー"); // エラーメッセージを設定
+            if (data) {
+                router.push(`/main?message=${encodeURIComponent(data.message)}`);
+            } else {
+                let data = {};
+                if ("errors" in data && Array.isArray(data.errors)) {
+                    setError((data as any).errors.join(", "));
+                } else {
+                    setError("不明なエラーが発生しました");
+                }
             }
-            return;
+        } catch (e) {
+            if (e instanceof Error) {
+            setError(`通信エラー: ${e.message}`);
         }
-                        
-        }catch (e) {
-            if(e instanceof Error){
-                setError(e.message);
-            }
-        }
+    }
 
     }
 
@@ -72,9 +74,9 @@ const InputPage = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
             <div className="bg-white p-8 rounded-lg shadow-md w-96">
-                <h1 className="text-2xl font-bold text-center mb-10">支出項目の入力</h1>
+                <h1 className="text-2xl font-bold text-center mb-10">収支項目の入力</h1>
 
-                <h3 className="text-2l text-center mb-10">管理をしたい支出項目を入力してください</h3>
+                <h3 className="text-sm text-center mb-10">管理をしたい収支カテゴリーを入力してください</h3>
                 
                 {error && (
                 <div className="mb-4 p-4 rounded bg-red-50 text-red-600 text-sm">
@@ -83,6 +85,16 @@ const InputPage = () => {
                 )}
 
                 <form onSubmit={labelFormSubmit} className="space-y-4">
+                    <div>
+                        <select 
+                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            onChange={(e) => setForm({...form, type: e.target.value})}
+                            value={form.type}
+                            >
+                            <option value="INCOME">収入</option>
+                            <option value="EXPENDITURE">支出</option>
+                        </select>
+                    </div>
                     <div>
                         <input
                             type="text"

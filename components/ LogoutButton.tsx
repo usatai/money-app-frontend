@@ -4,21 +4,20 @@ const  LogoutButton = () => {
     const router = useRouter();
 
     const handleLogout = async () => {
-        try{
-            const response = await fetch("http://localhost:8080/logout",{
-                method : 'POST',
-                credentials : 'include',
-            });
-    
-            if(response.ok){
-                router.push("/");
-            } else {
-                console.log(response);
-                console.error("ログアウトに失敗しました");
-            }
-        }catch(e){
-            console.log("ログアウトエラー:",e);
-        }
+        const response = await fetch("http://localhost:8080/api/user/logout",{
+            method: 'GET',
+            headers: {'Content-Type':'application/json'},
+            credentials: 'include'
+        })
+
+        if (response.ok) {
+            // 任意: ログアウト成功の表示なども可能
+            console.log('ログアウトしました');
+            // ログイン画面に遷移
+            router.push('/');
+        } else {
+            console.log("ログアウト失敗");
+        }  
     };
 
     return (

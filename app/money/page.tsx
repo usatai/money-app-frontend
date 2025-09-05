@@ -1,41 +1,103 @@
 'use client';
 import { useRouter } from "next/navigation";
 import { useState,useEffect} from "react";
+import { api } from "../lib/api";
 
 const MoneyPage = () => {
     const [moneyList,setMoneyList] = useState<string[]>([]);
     const [error,setError] = useState<string | null>();
     const [isLoading,setLoding] = useState(true);
+    const [currentMonthDate, setCurrentMonthDate] = useState<number>(new Date().getMonth() + 1);
     const router = useRouter();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            const res = await fetch('http://localhost:8080/api/user/check-auth', {
-            // const res = await fetch(`${apiUrl}/api/user/check-auth`,{
-                credentials : 'include'
-            })
-            console.log(res.status);
-            if(res.status !== 200){
-                router.push("/");
-            }else{
-                setLoding(false);
-            }
-        }
-        checkAuth();
-    },[router])
-
     // フォームの状態管理
     const [formData, setFormData] = useState({
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split('T')[0], 
+        incomeExpenditureType: 'INCOME',
         label_name: '',
         money_price: ''
     });
+
+    // 現在の日時
+    const nowDate = new Date().toISOString().slice(0,10);
+
+    useEffect(() => {
+        const currentDate = localStorage.getItem('currentDate');
+        console.log(currentDate);
+        if (currentDate) {
+            setFormData((prev) => ({
+                ...prev,
+                date: `${currentDate}-01`, // 例: "2025-07" → "2025-07-01"
+            }));
+            const month = currentDate.split("-")[1];
+            setCurrentMonthDate(parseInt(month, 10));
+        }
+    },[])
+    
+    // const getAuthHeaders = () => {
+    //     return {
+    //         'Content-Type': 'application/json',
+    //     };
+    // };
+
+    // useEffect(() => {
+    //     const checkAuth = async () => {
+    //         const res = await fetch('http://localhost:8080/api/user/check-auth', {
+    //             headers : getAuthHeaders(),
+    //         })
+    //         console.log(res.status);
+    //         if(res.status !== 200){
+    //             localStorage.removeItem('token');
+    //             router.push("/");
+    //         }else{
+    //             setLoding(false);
+    //         }
+    //     }
+    //     checkAuth();
+    // },[router])
 
     // 金額のフォーマット処理
     const formatMoneyInput = (value: string) => {
         return value.replace(/,/g, '');
     };
+
+    useEffect(() => {
+        const type = formData.incomeExpenditureType;
+        console.log(currentMonthDate);
+        console.log(type);
+        const params = new globalThis.URLSearchParams({ 
+            type,
+            nowDate,
+            currentMonth: String(currentMonthDate)
+        }).toString();
+
+        api(`/api/user/money?${params}`)
+            .then((data) => {
+                setLoding(false);
+                setMoneyList(data.userLabel);
+            })
+            .catch((error) => {
+                setLoding(false);
+                setError(error.message);
+            });
+        
+        // })
+        // .then((response) => {
+        //     if(!response.ok){
+        //         throw new Error("データの取得に失敗しました");
+        //     }
+        //     return response.json();
+        // })
+        // .then((data) => {
+        //     setLoding(false);
+        //     setMoneyList(data.userLabel);
+        // })
+        // .catch((error) => {
+        //     setLoding(false);
+        //     setError(error.message);  // エラー処理
+        // });
+        },[formData.incomeExpenditureType,currentMonthDate])
 
     // フォーム送信処理
     const handleSubmit = async (e: React.FormEvent) => {
@@ -43,55 +105,29 @@ const MoneyPage = () => {
         setError(null);
 
         try{
-            const response = await fetch('http://localhost:8080/api/user/money',{
-            // const response = await fetch(`${apiUrl}/api/user/money`, {
+            const data = await api('/api/user/money',{
                 method : 'POST',
-                credentials : 'include',
-                headers : { 'Content-Type': 'application/json' },
                 body : JSON.stringify({
+                    date : formData.date,
+                    incomeExpenditureType: formData.incomeExpenditureType,
                     label_name : formData.label_name,
                     money_price : formData.money_price,
-                    date : formData.date
                 }),
             });
 
-            const data = await response.json();
-
-            if(response.ok){
+            if(data){
                 router.push("/main");
             } else {
                 if(data.errors){
                     setError(data.errors);
                 }
             }
-
         }catch (e) {
             if(e instanceof Error){
                 setError(e.message);
             }
         }
     };
-
-    useEffect(() => {
-        fetch('http://localhost:8080/api/user/money', {
-        // fetch(`${apiUrl}/api/user/money`,{
-            method : 'GET',
-            credentials : 'include',
-        })
-        .then((response) => {
-            if(!response.ok){
-                throw new Error("データの取得に失敗しました");
-            }
-            return response.json();
-        })
-        .then((data) => {
-            console.log(data.userLabel);
-            setMoneyList(data.userLabel);
-        })
-        .catch((error) => {
-            setError(error.message);  // エラー処理
-        });
-    },[])
 
     if (isLoading) return <p className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50'>Loading...</p>;
 
@@ -119,6 +155,18 @@ const MoneyPage = () => {
                         />
                     </div>
 
+                    {/* 収支区別 */}
+                    <div>
+                        <select 
+                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            onChange={(e) => setFormData({...formData, incomeExpenditureType: e.target.value})}
+                            value={formData.incomeExpenditureType}
+                            >
+                            <option value="INCOME">収入</option>
+                            <option value="EXPENDITURE">支出</option>
+                        </select>
+                    </div>
+
                     {/* カテゴリー選択 */}
                     <div>
                         <select
@@ -126,7 +174,7 @@ const MoneyPage = () => {
                             onChange={(e) => setFormData({...formData, label_name: e.target.value})}
                             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                            <option value="" disabled>分類を選択</option>
+                            <option value="" disabled>カテゴリーを選択</option>
                             {moneyList.map((money)=> {
                                 return <option key={money}>{money}</option>
                             })}

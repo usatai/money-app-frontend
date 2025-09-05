@@ -11,7 +11,7 @@ export default function Home() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
-      };
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,9 +19,10 @@ export default function Home() {
 
         try{
             const response = await fetch('http://localhost:8080/api/user/signup', {
-            // const response = await fetch(`${apiUrl}/api/user/signup`,{
                 method : 'POST',
-                headers : {'Content-Type':'application/json'},
+                headers : {
+                    'Content-Type':'application/json',
+                },
                 credentials : 'include',
                 body : JSON.stringify({
                     user_name : form.username,
@@ -33,6 +34,7 @@ export default function Home() {
             const data = await response.json();
 
             if(response.ok){
+                localStorage.setItem('token',data.token);
                 router.push("/main");
             } else {
                 if(data.errors && Array.isArray(data.errors)){

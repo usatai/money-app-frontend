@@ -1,57 +1,54 @@
 // app/login/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState ,useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { api } from '../lib/api'; 
 
 
 const LoginPage = () => {
-  const [form, setForm] = useState({ username: '', password: '' });
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const [form, setForm] = useState({ username: '', password: '' });
+    const [error, setError] = useState<string | null>(null);
+    const [csrfToken,setCsrfToken] = useState<string | null>(null);
+    const router = useRouter();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
+    
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+        try {
+            const data = await api('/api/user/login', {
+            method: 'POST',
+            body: JSON.stringify({
+                loginUser_name:form.username,
+                loginUser_password:form.password,
+            }),
+        });
 
-    try {
-        const response = await fetch('http://localhost:8080/api/user/login', {
-        // const response = await fetch(`${apiUrl}/api/user/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-            loginUser_name:form.username,
-            loginUser_password:form.password,
-        }),
-      });
-      
-
-      const data = await response.json();
-
-      if (response.ok) {
-        router.push(`/main`);
-        // ?userId=${data.userId}
-      }else{
-        if(data.errors && Array.isArray(data.errors)){
-            setError(data.errors.join(', '));
+        if (data) {
+            console.log("user_id",data.userId);
+            router.push(`/main`);
+            // ?userId=${data.userId}
         }else{
-            setError("不明なエラー"); // エラーメッセージを設定
+            if(data.errors && Array.isArray(data.errors)){
+                setError(data.errors.join(', '));
+            }else{
+                setError("不明なエラー"); // エラーメッセージを設定
+            }
+            return;
         }
-        return;
-      }
 
-    } catch (e) {
-        if(e instanceof Error){
-            setError(e.message);
+        } catch (e) {
+            if(e instanceof Error){
+                setError(e.message);
+            }
         }
-    }
-  };
+    };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
