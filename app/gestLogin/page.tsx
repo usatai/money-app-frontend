@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation"
 
-const gestLogin  = () => {
+const GestLogin  = () => {
 
     const [form,setForm] = useState({username:""});
     const router = useRouter();
@@ -97,4 +97,4 @@ const gestLogin  = () => {
 }
 
 
-export default gestLogin;
+export default GestLogin;
