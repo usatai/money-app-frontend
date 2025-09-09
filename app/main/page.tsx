@@ -42,6 +42,7 @@ export default function Main() {
     };
 
     const fetchDate = async (selectMonth: string,type: string) => {
+        console.log("タイプ" + type);
         const q = new globalThis.URLSearchParams({ selectMonth,type }).toString();
         return await api(`/api/user/main?${q}`);
     };

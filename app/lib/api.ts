@@ -45,6 +45,8 @@ export async function api(path: string, init: RequestInit = {}) {
       credentials: 'include',
     });
 
+    console.log("ログ" + refreshRes);
+
     if (refreshRes.ok) {
       res = await fetch(`${BASE}${path}`, {
         ...init,
@@ -53,6 +55,8 @@ export async function api(path: string, init: RequestInit = {}) {
       });
     }
   }
+
+  console.log("ミス");
 
   if (!res.ok) {
     const text = await res.text().catch(() => '');
