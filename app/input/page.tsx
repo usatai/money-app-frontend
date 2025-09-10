@@ -10,7 +10,6 @@ const InputPage = () => {
     const [error,setError] = useState<string | null>(null);
     const [isLoading,setLoding] = useState(true);
     const router = useRouter();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const currentDate = localStorage.getItem('currentDate');
 
     // ローディング用
