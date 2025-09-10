@@ -10,7 +10,7 @@ const InputPage = () => {
     const [error,setError] = useState<string | null>(null);
     const [isLoading,setLoding] = useState(true);
     const router = useRouter();
-    const currentDate = localStorage.getItem('currentDate');
+    let currentDate : string | null;
 
     // ローディング用
     useEffect(() => {
@@ -24,6 +24,7 @@ const InputPage = () => {
                 // バックエンドにGETリクエストを送り、XSRF-TOKENクッキーをもらう
                 await api('/api/user/csrf');
                 console.log('✅ mainページでCSRFクッキーの準備ができました。');
+                currentDate = localStorage.getItem('currentDate');
             } catch (error) {
                 console.error('CSRFクッキーの準備に失敗しました:', error);
                 // エラーハンドリング
