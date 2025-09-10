@@ -10,7 +10,6 @@ const MoneyPage = () => {
     const [isLoading,setLoding] = useState(true);
     const [currentMonthDate, setCurrentMonthDate] = useState<number>(new Date().getMonth() + 1);
     const router = useRouter();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     // フォームの状態管理
     const [formData, setFormData] = useState({
@@ -27,10 +26,6 @@ const MoneyPage = () => {
         const currentDate = localStorage.getItem('currentDate');
         console.log(currentDate);
         if (currentDate) {
-            setFormData((prev) => ({
-                ...prev,
-                date: `${currentDate}-01`, // 例: "2025-07" → "2025-07-01"
-            }));
             const month = currentDate.split("-")[1];
             setCurrentMonthDate(parseInt(month, 10));
         }

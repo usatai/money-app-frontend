@@ -7,7 +7,6 @@ export default function Home() {
     const [form, setForm] = useState({ username: '', email:'',password: '' });
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });

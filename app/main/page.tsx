@@ -49,7 +49,7 @@ export default function Main() {
 
     useEffect(() => {
         (async () => {
-            let type = selectedCategory === 'total' ? 'TOTAL' 
+            const type = selectedCategory === 'total' ? 'TOTAL' 
                 : selectedCategory === 'income' ? 'INCOME' : 'EXPENDITURE'
             
             setBarChart(selectedCategory === 'income' ? '収入金額' 
@@ -83,7 +83,7 @@ export default function Main() {
     // 削除確認のハンドラ
     const handleConfirmDelete = async () => {
         try {
-            const response = await api ('/api/user/delete',{
+            await api ('/api/user/delete',{
                 method : 'POST',
                 body : JSON.stringify({
                     label_name : selectedLabel,

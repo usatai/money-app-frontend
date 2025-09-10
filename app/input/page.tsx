@@ -55,9 +55,8 @@ const InputPage = () => {
             if (data) {
                 router.push(`/main?message=${encodeURIComponent(data.message)}`);
             } else {
-                let data = {};
-                if ("errors" in data && Array.isArray(data.errors)) {
-                    setError((data as any).errors.join(", "));
+                if(data.errors){
+                    setError(data.errors);
                 } else {
                     setError("不明なエラーが発生しました");
                 }

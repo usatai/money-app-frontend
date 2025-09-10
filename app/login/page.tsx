@@ -1,7 +1,7 @@
 // app/login/page.tsx
 'use client';
 
-import { useState ,useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '../lib/api'; 
 
@@ -9,9 +9,7 @@ import { api } from '../lib/api';
 const LoginPage = () => {
     const [form, setForm] = useState({ username: '', password: '' });
     const [error, setError] = useState<string | null>(null);
-    const [csrfToken,setCsrfToken] = useState<string | null>(null);
     const router = useRouter();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
