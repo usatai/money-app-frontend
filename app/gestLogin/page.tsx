@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation"
+import { api } from "../lib/api";
 
-const gestLogin  = () => {
+const GestLogin  = () => {
 
     const [form,setForm] = useState({username:""});
     const router = useRouter();
@@ -12,28 +13,23 @@ const gestLogin  = () => {
         e.preventDefault();
 
         try {
-            const response = await fetch ('http://localhost:8080/api/user/gestLogin',{
+            const data = await api('/api/user/gestLogin',{
                 method : 'POST',
-                headers : {
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify({
                     gestLoginUserName:form.username,
                 })
             })
 
-            const data = await response.json();
-
-            if (response.ok) {
-                localStorage.setItem('token',data.token);
+            if (data) {
                 console.log("user_id",data.userId);
                 router.push(`/main`);
-                // ?userId=${data.userId}
             }else{
                 if(data.errors && Array.isArray(data.errors)){
+                    console.log("エラー");
                     // setError(data.errors.join(', '));
                 }else{
                     // setError("不明なエラー"); // エラーメッセージを設定
+                    console.log("最終エラー");
                 }
                 return;
             }
@@ -97,4 +93,4 @@ const gestLogin  = () => {
 }
 
 
-export default gestLogin;
+export default GestLogin;

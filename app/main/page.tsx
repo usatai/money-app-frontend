@@ -24,16 +24,17 @@ export default function Main() {
     const [labelList, setLabelList] = useState<string[]>([]);
     const [moneyList, setMoneyList] = useState<number[]>([]);
     const [selectedLabel, setSelectedLabel] = useState<string | null>(null); // nullで初期化
-    const [moneySum, setMoneySum] = useState<number>(0);
+    const [totalAmount, setTotalAmount] = useState<number>(0);
+    const [incomeAmount, setIncomeAmount] = useState<number>(0);
+    const [expenditureAmount, setExpenditureAmount] = useState<number>(0);
     const [moneyNowList, setMoneyNowList] = useState<number[]>([]);
     const [moneyDate, setMoneyDate] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const router = useRouter();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    // const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const [selectedCategory, setSelectedCategory] = useState<'total' | 'income' | 'expense'>('income');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [barChart,setBarChart] = useState('収入');
-    const [csrfToken,setCsrfToken] = useState<string | null>(null);
 
     const handleLabelClick = (label: string) => {
         setSelectedLabel(label);
@@ -41,13 +42,14 @@ export default function Main() {
     };
 
     const fetchDate = async (selectMonth: string,type: string) => {
+        console.log("タイプ" + type);
         const q = new globalThis.URLSearchParams({ selectMonth,type }).toString();
         return await api(`/api/user/main?${q}`);
     };
 
     useEffect(() => {
         (async () => {
-            let type = selectedCategory === 'total' ? 'TOTAL' 
+            const type = selectedCategory === 'total' ? 'TOTAL' 
                 : selectedCategory === 'income' ? 'INCOME' : 'EXPENDITURE'
             
             setBarChart(selectedCategory === 'income' ? '収入金額' 
@@ -55,14 +57,19 @@ export default function Main() {
             
             try {
                 const data = await fetchDate(selectMonth, type);
-                if (data) {
+                console.log(data);
+                console.log(data.responseType);
+                if (data.responseType === "DETAIL") {
                     setLabelList(data.labelList);
                     setMoneyList(data.moneyList);
-                    setMoneySum(data.moneySum);
                     setMoneyNowList(data.moneyNowList);
                     setMoneyDate(data.moneyDate);
                     setUserMonthList(data.userMonthList);
                     localStorage.setItem('currentDate', data.monthDate); // これは機密ではないのでOK
+                } else {
+                    setIncomeAmount(data.incomeAmount);
+                    setExpenditureAmount(data.expenditureAmount);
+                    setTotalAmount(data.totalAmount);
                 }
             } catch (e) {
                 console.error('データ取得エラー:', e);
@@ -76,7 +83,7 @@ export default function Main() {
     // 削除確認のハンドラ
     const handleConfirmDelete = async () => {
         try {
-            const response = await api ('/api/user/delete',{
+            await api ('/api/user/delete',{
                 method : 'POST',
                 body : JSON.stringify({
                     label_name : selectedLabel,
@@ -111,9 +118,9 @@ export default function Main() {
         amount: moneyNowList[index],
     }));
 
-    const barTotalData = [{name: '月間収支',収入: 40000,支出:20000}];
+    const barTotalData = [{name: '月間収支',収入: incomeAmount,支出:expenditureAmount}];
 
-    const balance =  10000 // 収支合計（差額）
+    const balance =  totalAmount // 収支合計（差額）
 
   
     if (isLoading) return <p className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50'>Loading...</p>;
@@ -127,12 +134,12 @@ export default function Main() {
                 <Navbar />
 
                 <div className="container mx-auto px-4 py-6">
-                    <div className="mb-6">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">
+                    <div className="mb-6 flex flex-col items-center">
+                        <label className="block text-gray-700 text-sm font-bold mb-2 text-center">
                             月選択
                         </label>
                         <select
-                            className="shadow border rounded w-full py-2 px-3 text-gray-700"
+                            className="shadow border rounded w-125  py-2 px-3 text-gray-700 mx-auto"
                             value={selectMonth}
                             onChange={(e) => 
                                 setSelectMonth(e.target.value)}
@@ -147,14 +154,14 @@ export default function Main() {
                         <h4 className="text-xl font-bold text-center mb-6">
                             月間リアルタイム割合収支グラフ
                         </h4>
-                        {/* --- 2. 計算結果を描画する --- */}
-                        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                            <h3 style={{ margin: 0 }}>TOTAL</h3>
-                            <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'red', margin: 0 }}>
-                                {/* toLocaleStringを使って数値を円表記にフォーマット */}
-                                {balance.toLocaleString('ja-JP', { style: 'currency', currency: 'JPY' })}
-                            </p>
-                        </div>
+                        {selectedCategory === 'total' ? (
+                            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                                <h3 style={{ margin: 0 }}>収支合計額</h3>
+                                <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'red', marginBottom: 20 }}>
+                                    {balance.toLocaleString('ja-JP', { style: 'currency', currency: 'JPY' })}
+                                </p>
+                            </div>
+                        ) : null}
                         <div className="flex justify-center mb-6">
                             <button
                                 type="button"
@@ -197,8 +204,8 @@ export default function Main() {
                             </button>
                         </div>
                         <div className="flex flex-col md:flex-row">
-                           {pieChartData.length > 0 ? (
-                                <div style={{ width: '100%', height: 250 }}>
+                           {pieChartData.length > 0 || selectedCategory === 'total' ? (
+                                <div className="w-full md:w-3/4 lg:w-2/3 xl:w-1/2 mx-auto" style={{ height: 250 }}>
                                     <ResponsiveContainer>
                                         {selectedCategory === 'total' ? (
                                             <BarChart data={barTotalData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
@@ -263,7 +270,7 @@ export default function Main() {
                     </div>
 
                     {/* 棒グラフセクション */}
-                    {barChartData.length > 0 ? (
+                    {barChartData.length > 0 && selectedCategory !== 'total' ? (
                         <div className="bg-white rounded-lg shadow-md p-6">   
                             <h4 className="text-xl font-bold text-center mb-6">
                             日別支出グラフ
@@ -273,6 +280,8 @@ export default function Main() {
                                     <BarChart 
                                         data={barChartData}
                                         margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
+                                        barCategoryGap="60%"
+                                        barGap={8}
                                     >
                                         {/* グリッド線: グラフの背景に点線を表示 */}
                                         <CartesianGrid strokeDasharray="3 3" />
@@ -296,6 +305,7 @@ export default function Main() {
                                             dataKey="amount" // barChartData内の 'amount' プロパティを棒の高さに使う
                                             fill="rgba(241, 107, 141, 1)" // 棒の色
                                             name={barChart} // 凡例に表示される名前
+                                            maxBarSize={36}
                                         />
                                     </BarChart>
                                 </ResponsiveContainer>

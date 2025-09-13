@@ -3,14 +3,14 @@
 import { useRouter } from "next/navigation";
 import { useState ,useEffect} from "react";
 import { api } from "../lib/api"
+import Navbar from "@/components/Navbar";
 
 const InputPage = () => {
     const [form,setForm] = useState({labelName: '',type:'INCOME'});
     const [error,setError] = useState<string | null>(null);
     const [isLoading,setLoding] = useState(true);
     const router = useRouter();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const currentDate = localStorage.getItem('currentDate');
+    let currentDate : string | null;
 
     // ローディング用
     useEffect(() => {
@@ -24,6 +24,7 @@ const InputPage = () => {
                 // バックエンドにGETリクエストを送り、XSRF-TOKENクッキーをもらう
                 await api('/api/user/csrf');
                 console.log('✅ mainページでCSRFクッキーの準備ができました。');
+                currentDate = localStorage.getItem('currentDate');
             } catch (error) {
                 console.error('CSRFクッキーの準備に失敗しました:', error);
                 // エラーハンドリング
@@ -54,9 +55,8 @@ const InputPage = () => {
             if (data) {
                 router.push(`/main?message=${encodeURIComponent(data.message)}`);
             } else {
-                let data = {};
-                if ("errors" in data && Array.isArray(data.errors)) {
-                    setError((data as any).errors.join(", "));
+                if(data.errors){
+                    setError(data.errors);
                 } else {
                     setError("不明なエラーが発生しました");
                 }
@@ -72,7 +72,10 @@ const InputPage = () => {
     if (isLoading) return <p className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50'>Loading...</p>;
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+        <>
+        <Navbar />
+
+        <div className="min-h-screen flex items-start justify-center pt-30 bg-gradient-to-br from-blue-50 to-purple-50">
             <div className="bg-white p-8 rounded-lg shadow-md w-96">
                 <h1 className="text-2xl font-bold text-center mb-10">収支項目の入力</h1>
 
@@ -123,6 +126,7 @@ const InputPage = () => {
                 </form>
             </div>
         </div>
+        </>
     );
 }
 

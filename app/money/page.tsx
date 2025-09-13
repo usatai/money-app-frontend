@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState,useEffect} from "react";
 import { api } from "../lib/api";
+import Navbar from "@/components/Navbar";
 
 const MoneyPage = () => {
     const [moneyList,setMoneyList] = useState<string[]>([]);
@@ -9,7 +10,6 @@ const MoneyPage = () => {
     const [isLoading,setLoding] = useState(true);
     const [currentMonthDate, setCurrentMonthDate] = useState<number>(new Date().getMonth() + 1);
     const router = useRouter();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     // フォームの状態管理
     const [formData, setFormData] = useState({
@@ -26,36 +26,10 @@ const MoneyPage = () => {
         const currentDate = localStorage.getItem('currentDate');
         console.log(currentDate);
         if (currentDate) {
-            setFormData((prev) => ({
-                ...prev,
-                date: `${currentDate}-01`, // 例: "2025-07" → "2025-07-01"
-            }));
             const month = currentDate.split("-")[1];
             setCurrentMonthDate(parseInt(month, 10));
         }
     },[])
-    
-    // const getAuthHeaders = () => {
-    //     return {
-    //         'Content-Type': 'application/json',
-    //     };
-    // };
-
-    // useEffect(() => {
-    //     const checkAuth = async () => {
-    //         const res = await fetch('http://localhost:8080/api/user/check-auth', {
-    //             headers : getAuthHeaders(),
-    //         })
-    //         console.log(res.status);
-    //         if(res.status !== 200){
-    //             localStorage.removeItem('token');
-    //             router.push("/");
-    //         }else{
-    //             setLoding(false);
-    //         }
-    //     }
-    //     checkAuth();
-    // },[router])
 
     // 金額のフォーマット処理
     const formatMoneyInput = (value: string) => {
@@ -81,22 +55,6 @@ const MoneyPage = () => {
                 setLoding(false);
                 setError(error.message);
             });
-        
-        // })
-        // .then((response) => {
-        //     if(!response.ok){
-        //         throw new Error("データの取得に失敗しました");
-        //     }
-        //     return response.json();
-        // })
-        // .then((data) => {
-        //     setLoding(false);
-        //     setMoneyList(data.userLabel);
-        // })
-        // .catch((error) => {
-        //     setLoding(false);
-        //     setError(error.message);  // エラー処理
-        // });
         },[formData.incomeExpenditureType,currentMonthDate])
 
     // フォーム送信処理
@@ -132,7 +90,9 @@ const MoneyPage = () => {
     if (isLoading) return <p className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50'>Loading...</p>;
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <>
+        <Navbar />
+        <div className="min-h-screen flex items-start pt-30 justify-center bg-gradient-to-br from-blue-50 to-purple-50">
             <div className="bg-white p-8 rounded-lg shadow-md w-96">
 
                 {error && (
@@ -211,6 +171,7 @@ const MoneyPage = () => {
                 </form>
             </div>
         </div>
+        </>
     );
 }
 
