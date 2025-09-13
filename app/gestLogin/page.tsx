@@ -35,7 +35,7 @@ const GestLogin  = () => {
 
         } catch (e) {
             if(e instanceof Error){
-                // setError(e.message);
+                setError(e.message);
             }
         }
     }

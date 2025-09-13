@@ -10,7 +10,7 @@ const InputPage = () => {
     const [error,setError] = useState<string | null>(null);
     const [isLoading,setLoding] = useState(true);
     const router = useRouter();
-    let currentDate : string | null;
+    const [currentDate,setCurrentDate]= useState<string | null>(null);
 
     // ローディング用
     useEffect(() => {
@@ -24,7 +24,8 @@ const InputPage = () => {
                 // バックエンドにGETリクエストを送り、XSRF-TOKENクッキーをもらう
                 await api('/api/user/csrf');
                 console.log('✅ mainページでCSRFクッキーの準備ができました。');
-                currentDate = localStorage.getItem('currentDate');
+                const data = localStorage.getItem('currentDate');
+                setCurrentDate(data);
             } catch (error) {
                 console.error('CSRFクッキーの準備に失敗しました:', error);
                 // エラーハンドリング
@@ -42,15 +43,25 @@ const InputPage = () => {
         e.preventDefault();
         setError(null);
 
+        console.log('API実行前のcurrentDate:', currentDate);
+        console.log('localStorage直接取得:', localStorage.getItem('currentDate'));
+
+        // 送信するデータを事前に作成して確認
+        const requestData = {
+            label_name: form.labelName,
+            type: form.type,
+            currentDate: currentDate
+        };
+        console.log('送信するデータ:', requestData);
+        console.log('JSON文字列化後:', JSON.stringify(requestData));
+
         try{
             const data = await api("/api/user/input", {
             method: "POST",
-            body: JSON.stringify({
-                label_name: form.labelName,
-                type: form.type,
-                currentDate: currentDate
-            }),
+            body: JSON.stringify(requestData),
             });
+
+            console.log("データ" + data);
 
             if (data) {
                 router.push(`/main?message=${encodeURIComponent(data.message)}`);
