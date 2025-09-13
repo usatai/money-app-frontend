@@ -64,7 +64,21 @@ export async function api(path: string, init: RequestInit = {}) {
         }
       }
 
-      console.log("レスポンス" + res);
+      console.log("レスポンス詳細:", {
+        status: res.status,
+        statusText: res.statusText,
+        headers: Object.fromEntries(res.headers.entries()),
+        url: res.url
+      });
+      
+      // レスポンスボディも確認（読み取り後に再度使用するため複製）
+      const responseClone = res.clone();
+      try {
+        const responseText = await responseClone.text();
+        console.log("レスポンスボディ:", responseText);
+      } catch (e) {
+        console.log("レスポンスボディ読み取りエラー:", e);
+      }
     
       if (!res.ok) {
         const text = await res.text().catch(() => '');
