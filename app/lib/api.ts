@@ -1,83 +1,79 @@
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
-let accessToken = '';
-
-/**
- * JWT をセットする
- */
-export function setAccessToken(token: string) {
-    accessToken = token;
+// Cookie 取得関数
+function getCookie(name: string): string {
+  return document.cookie
+    .split('; ')
+    .find(row => row.startsWith(name + '='))?.split('=')[1] ?? '';
 }
 
-/**
- * 汎用 API 関数 (JWT 認証対応)
- */
+// 汎用 API 関数
 export async function api(path: string, init: RequestInit = {}) {
-  // ヘッダー初期化
+  const method = (init.method ?? 'GET').toUpperCase();
+
+  // 書き込み系メソッドなら CSRF トークンをヘッダーに付与
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'Authorization': accessToken ? `Bearer ${accessToken}` : '',
     ...(init.headers as Record<string, string> || {}),
   };
 
   try {
-    // メインの fetch
-    console.log('[api] 送信するリクエスト:', {
-      url: `${BASE}${path}`,
-      method: init.method || 'GET',
-      headers,
-      body: init.body
-    });
-
-    let res = await fetch(`${BASE}${path}`, {
-      ...init,
-      headers,
-    });
-
-    // 401 が返った場合は refresh → 再試行
-    if (res.status === 401) {
-      const refreshRes = await fetch(`${BASE}/api/user/refresh`, {
-        method: 'POST',
-        headers,
-      });
-
-      if (refreshRes.ok) {
-        const refreshData = await refreshRes.json();
-        if (refreshData?.accessToken) {
-          accessToken = refreshData.accessToken;
-          headers['Authorization'] = `Bearer ${accessToken}`;
-
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+        // CSRF Cookie を事前取得
+        await fetch(`${BASE}/api/user/csrf`, {
+          credentials: 'include',
+        });
+    
+        console.log(document.cookie);
+    
+        const xsrfToken = getCookie('XSRF-TOKEN');
+        if (xsrfToken) {
+          headers['X-XSRF-TOKEN'] = xsrfToken;
+        }
+      }
+    
+  // メインの fetch
+  console.log('[api] 送信するリクエスト:', {
+    url: `${BASE}${path}`,
+    method: init.method || 'GET',
+    headers,
+    body: init.body
+  });
+  
+  let res = await fetch(`${BASE}${path}`, {
+    ...init,
+    credentials: 'include', // Cookie 送受信
+    headers,                // ヘッダーを上書きせず最後に適用
+  });
+    
+      // 401 が返った場合に一度だけリフレッシュ → 再試行
+      if (res.status === 401) {
+        const refreshRes = await fetch(`${BASE}/api/user/refresh`, {
+          method: 'POST',
+          credentials: 'include',
+        });
+    
+        console.log("ログ" + refreshRes);
+    
+        if (refreshRes.ok) {
           res = await fetch(`${BASE}${path}`, {
             ...init,
+            credentials: 'include',
             headers,
           });
         }
       }
-    }
 
-    console.log("レスポンス詳細:", {
-      status: res.status,
-      statusText: res.statusText,
-      headers: Object.fromEntries(res.headers.entries()),
-      url: res.url
-    });
+      console.log("レスポンス" + res);
+    
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(text || `HTTP ${res.status}`);
+      }
 
-    const responseClone = res.clone();
-    try {
-      const responseText = await responseClone.text();
-      console.log("レスポンスボディ:", responseText);
-    } catch (e) {
-      console.log("レスポンスボディ読み取りエラー:", e);
-    }
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => '');
-      throw new Error(text || `HTTP ${res.status}`);
-    }
-
-    return await res.json();
+      return await res.json();
   } catch (e) {
-    console.log("API エラー", e);
+    console.log("ミス" + e);
     return null;
   }
 }

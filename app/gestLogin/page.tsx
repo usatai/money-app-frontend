@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation"
-import { api,setAccessToken} from "../lib/api";
+import { api } from "../lib/api";
 
 const GestLogin  = () => {
 
@@ -21,10 +21,9 @@ const GestLogin  = () => {
                 })
             })
 
-            if (data && data.accessToken) {
-                // JWTをセット
-                setAccessToken(data.accessToken);
-                router.push('/main');
+            if (data) {
+                console.log("user_id",data.userId);
+                router.push(`/main`);
             }else{
                 if(data.errors && Array.isArray(data.errors)){
                     setError(data.errors.join(', '));
