@@ -1,32 +1,29 @@
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
-// 汎用 API 関数
+let accessToken = '';
+
+/**
+ * JWT をセットする
+ */
+export function setAccessToken(token: string) {
+    accessToken = token;
+}
+
+/**
+ * 汎用 API 関数 (JWT 認証対応)
+ */
 export async function api(path: string, init: RequestInit = {}) {
   const method = (init.method ?? 'GET').toUpperCase();
 
   // ヘッダー初期化
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'Authorization': accessToken ? `Bearer ${accessToken}` : '',
     ...(init.headers as Record<string, string> || {}),
   };
 
   try {
-    // 書き込み系メソッドなら CSRF トークンをヘッダーに付与
-    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
-        // 1. /csrf を叩いて JSON でトークンを取得
-        const csrfRes = await fetch(`${BASE}/api/user/csrf`, {
-          credentials: 'include',
-        });
-
-        if (!csrfRes.ok) throw new Error('CSRF token fetch failed');
-
-        const csrfData = await csrfRes.json();
-        if (csrfData?.token) {
-          headers['X-XSRF-TOKEN'] = csrfData.token;
-        }
-    }
-
-    // 2. メインの fetch
+    // メインの fetch
     console.log('[api] 送信するリクエスト:', {
       url: `${BASE}${path}`,
       method: init.method || 'GET',
@@ -36,23 +33,27 @@ export async function api(path: string, init: RequestInit = {}) {
 
     let res = await fetch(`${BASE}${path}`, {
       ...init,
-      credentials: 'include', // Cookie 送受信
       headers,
     });
 
-    // 3. 401 が返った場合は refresh → 再試行
+    // 401 が返った場合は refresh → 再試行
     if (res.status === 401) {
       const refreshRes = await fetch(`${BASE}/api/user/refresh`, {
         method: 'POST',
-        credentials: 'include',
+        headers,
       });
 
       if (refreshRes.ok) {
-        res = await fetch(`${BASE}${path}`, {
-          ...init,
-          credentials: 'include',
-          headers,
-        });
+        const refreshData = await refreshRes.json();
+        if (refreshData?.accessToken) {
+          accessToken = refreshData.accessToken;
+          headers['Authorization'] = `Bearer ${accessToken}`;
+
+          res = await fetch(`${BASE}${path}`, {
+            ...init,
+            headers,
+          });
+        }
       }
     }
 
@@ -78,7 +79,7 @@ export async function api(path: string, init: RequestInit = {}) {
 
     return await res.json();
   } catch (e) {
-    console.log("ミス", e);
+    console.log("API エラー", e);
     return null;
   }
 }
