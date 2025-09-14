@@ -13,8 +13,6 @@ export function setAccessToken(token: string) {
  * 汎用 API 関数 (JWT 認証対応)
  */
 export async function api(path: string, init: RequestInit = {}) {
-  const method = (init.method ?? 'GET').toUpperCase();
-
   // ヘッダー初期化
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
