@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation"
 import { api } from "../lib/api";
 
-const GestLogin  = () => {
+const GoalExpenditure  = () => {
 
-    const [form,setForm] = useState({username:""});
+    const [form,setForm] = useState({expenditure:""});
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
@@ -14,15 +14,14 @@ const GestLogin  = () => {
         e.preventDefault();
 
         try {
-            const data = await api('/api/user/gestLogin',{
+            const data = await api('/api/user/goal_expenditure',{
                 method : 'POST',
                 body: JSON.stringify({
-                    gestLoginUserName:form.username,
+                    goal_expenditure:form.expenditure,
                 })
             })
 
             if (data) {
-                console.log("user_id",data.userId);
                 router.push(`/main`);
             }else{
                 if(data.errors && Array.isArray(data.errors)){
@@ -48,7 +47,19 @@ const GestLogin  = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
             <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
-                <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">ゲストログイン</h1>
+                <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">支出目標額登録</h1>
+
+                <div className="relative mb-4">
+                    <div className="bg-blue-100 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg shadow-sm">
+                    <p className="text- text-center">今月の支出額を設定しよう。</p>
+                    <p className="text-center text-sm">設定金額に対して支出のペースが早かったら教えるよ</p>
+                    </div>
+                    <div className="absolute left-1/2 transform -translate-x-1/2 top-full w-0 h-0
+                    border-l-[10px] border-l-transparent
+                    border-t-[10px] border-t-blue-100
+                    border-r-[10px] border-r-transparent">
+                    </div>
+                </div>
         
                 {error && (
                 <div className="mb-4 p-4 rounded bg-red-50 text-red-600 text-sm">
@@ -62,9 +73,9 @@ const GestLogin  = () => {
                 <div>
                     <input
                     type="text"
-                    name="username"
-                    placeholder="ユーザー名"
-                    value={form.username}
+                    name="expenditure"
+                    placeholder="例：10000"
+                    value={form.expenditure}
                     onChange={handleChange}
                     autoComplete="off"
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
@@ -75,16 +86,9 @@ const GestLogin  = () => {
                     type="submit"
                     className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
                 >
-                    ログイン
+                    目標設定
                 </button>
 
-                <button
-                    onClick={() => window.location.href = '/'}
-                    type="button"
-                    className="w-full bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
-                >
-                    戻る
-                </button>
                 </form>
             </div>
         </div>
@@ -94,4 +98,4 @@ const GestLogin  = () => {
 }
 
 
-export default GestLogin;
+export default GoalExpenditure;

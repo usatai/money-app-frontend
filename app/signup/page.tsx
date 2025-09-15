@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { api } from "../lib/api";
 
 export default function Home() {
     const [form, setForm] = useState({ username: '', email:'',password: '' });
@@ -17,12 +18,8 @@ export default function Home() {
         setError(null);
 
         try{
-            const response = await fetch('http://localhost:8080/api/user/signup', {
+            const data = await api('/api/user/signup', {
                 method : 'POST',
-                headers : {
-                    'Content-Type':'application/json',
-                },
-                credentials : 'include',
                 body : JSON.stringify({
                     user_name : form.username,
                     user_email : form.email,
@@ -30,14 +27,11 @@ export default function Home() {
                 })
             });
 
-            const data = await response.json();
-
-            if(response.ok){
-                localStorage.setItem('token',data.token);
-                router.push("/main");
+            if(data.userId){
+                router.push("/goal_expenditure");
             } else {
-                if(data.errors && Array.isArray(data.errors)){
-                    setError(data.errors.join(', '));
+                if(data.errors){
+                    setError(data.errors);
                 }else{
                     setError("不明なエラー"); // エラーメッセージを設定
                 }
@@ -59,7 +53,9 @@ export default function Home() {
         
             {error && (
             <div className="mb-4 p-4 rounded bg-red-50 text-red-600 text-sm">
-                {error}
+                {Array.isArray(error) ? error.map((err, index) => (
+                    <div key={index}>{err}</div>
+                )) : error}
             </div>
             )}
         

@@ -17,6 +17,7 @@ const  LogoutButton = () => {
             router.push('/');
         } else {
             console.log("ログアウト失敗");
+            router.push('/');
         }  
     };
 
