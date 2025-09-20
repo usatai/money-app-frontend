@@ -30,8 +30,20 @@ const LoginPage = () => {
 
         if (data.userId) {
             console.log("user_id",data.userId);
-            router.push(`/main`);
-            // ?userId=${data.userId}
+            
+            // 月の初回ログイン判定
+            const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM形式
+            const lastLoginMonth = localStorage.getItem('lastLoginMonth');
+            
+            // lastLoginMonthがnull（初回ログイン）または現在の月と異なる場合
+            if (lastLoginMonth !== currentMonth) {
+                // 月の初回ログインの場合、goal_expenditureに誘導
+                localStorage.setItem('lastLoginMonth', currentMonth);
+                router.push('/goal_expenditure');
+            } else {
+                // 同じ月の通常ログインの場合、mainに誘導
+                router.push('/main');
+            }
         }else{
             console.log(data.errors);
             if(data.errors && Array.isArray(data.errors)){

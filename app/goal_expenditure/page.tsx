@@ -21,8 +21,9 @@ const GoalExpenditure  = () => {
                 })
             })
 
-            if (data) {
-                router.push(`/main`);
+            if (data.userId) {
+                // 目標設定完了後、メインページにリダイレクト
+                router.push('/main');
             }else{
                 if(data.errors && Array.isArray(data.errors)){
                     setError(data.errors.join(', '));
