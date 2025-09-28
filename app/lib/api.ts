@@ -1,11 +1,19 @@
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
-// Cookie 取得関数
+// 修正版 Cookie 取得関数
 function getCookie(name: string): string {
-  return document.cookie
-    .split('; ')
-    .find(row => row.startsWith(name + '='))?.split('=')[1] ?? '';
-}
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+      // 各クッキーの先頭にある可能性のある空白を削除
+      const trimmedCookie = cookie.trim(); 
+      if (trimmedCookie.startsWith(name + '=')) {
+        // 'key='の部分を除いた値を返す
+        return trimmedCookie.substring(name.length + 1);
+      }
+    }
+    // 見つからなかった場合は空文字を返す
+    return '';
+  }
 
 // 汎用 API 関数
 export async function api(path: string, init: RequestInit = {}) {
