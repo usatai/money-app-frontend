@@ -28,6 +28,8 @@ const LoginPage = () => {
             }),
         });
 
+        console.log(data);
+
         if (data.userId) {
             console.log(data.check);
             if (data.check === true) {
