@@ -28,13 +28,13 @@ export async function api(path: string, init: RequestInit = {}) {
   try {
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
         // CSRF Cookie を事前取得
-        await fetch(`${BASE}/api/user/csrf`, {
+        const csrfResponse = await fetch(`${BASE}/api/user/csrf`, {
           credentials: 'include',
         });
-    
-        console.log(document.cookie);
-    
-        const xsrfToken = getCookie('XSRF-TOKEN');
+
+        const csrfData = await csrfResponse.json();
+        const xsrfToken = csrfData.token;
+        
         console.log(xsrfToken);
         if (xsrfToken) {
           headers['X-XSRF-TOKEN'] = xsrfToken;
