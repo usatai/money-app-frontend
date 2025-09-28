@@ -13,7 +13,7 @@ function getCookie(name: string): string {
     }
     // 見つからなかった場合は空文字を返す
     return '';
-  }
+}
 
 // 汎用 API 関数
 export async function api(path: string, init: RequestInit = {}) {
@@ -35,6 +35,7 @@ export async function api(path: string, init: RequestInit = {}) {
         console.log(document.cookie);
     
         const xsrfToken = getCookie('XSRF-TOKEN');
+        console.log(xsrfToken);
         if (xsrfToken) {
           headers['X-XSRF-TOKEN'] = xsrfToken;
         }
