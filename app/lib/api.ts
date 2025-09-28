@@ -32,46 +32,43 @@ export async function api(path: string, init: RequestInit = {}) {
         }
       }
     
-  // メインの fetch
-  console.log('[api] 送信するリクエスト:', {
-    url: `${BASE}${path}`,
-    method: init.method || 'GET',
-    headers,
-    body: init.body
-  });
-  
-  let res = await fetch(`${BASE}${path}`, {
-    ...init,
-    credentials: 'include', // Cookie 送受信
-    headers,                // ヘッダーを上書きせず最後に適用
-  });
+    // メインの fetch
+    console.log('[api] 送信するリクエスト:', {
+        url: `${BASE}${path}`,
+        method: init.method || 'GET',
+        headers,
+        body: init.body
+    });
     
-      // 401 が返った場合に一度だけリフレッシュ → 再試行
-      if (res.status === 401) {
-        const refreshRes = await fetch(`${BASE}/api/user/refresh`, {
-          method: 'POST',
-          credentials: 'include',
+    let res = await fetch(`${BASE}${path}`, {
+        ...init,
+        credentials: 'include', // Cookie 送受信
+        headers,                // ヘッダーを上書きせず最後に適用
+    });
+    
+    // 401 が返った場合に一度だけリフレッシュ → 再試行
+    if (res.status === 401) {
+    const refreshRes = await fetch(`${BASE}/api/user/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+    });
+
+    console.log("ログ" + refreshRes);
+
+    if (refreshRes.ok) {
+        res = await fetch(`${BASE}${path}`, {
+        ...init,
+        credentials: 'include',
+        headers,
         });
-    
-        console.log("ログ" + refreshRes);
-    
-        if (refreshRes.ok) {
-          res = await fetch(`${BASE}${path}`, {
-            ...init,
-            credentials: 'include',
-            headers,
-          });
-        }
-      }
+    }
+    }
 
-      console.log("レスポンス" + res);
-    
-      if (!res.ok) {
-        const text = await res.text().catch(() => '');
-        throw new Error(text || `HTTP ${res.status}`);
-      }
+    if (!res.ok) {
+        return await res.json();
+    }
 
-      return await res.json();
+    return await res.json();
   } catch (e) {
     console.log("ミス" + e);
     return null;

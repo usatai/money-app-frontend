@@ -28,13 +28,18 @@ const LoginPage = () => {
             }),
         });
 
-        if (data) {
-            console.log("user_id",data.userId);
-            router.push(`/main`);
-            // ?userId=${data.userId}
-        }else{
+        if (data.userId) {
+            console.log(data.check);
+            if (data.check === true) {
+                console.log("user_id",data.userId);
+                router.push(`/main`);
+            } else {
+                router.push('/goal_expenditure')
+            }
+        } else {
+            console.log(data.errors);
             if(data.errors && Array.isArray(data.errors)){
-                setError(data.errors.join(', '));
+                setError(data.errors);
             }else{
                 setError("不明なエラー"); // エラーメッセージを設定
             }
@@ -55,7 +60,9 @@ const LoginPage = () => {
         
         {error && (
           <div className="mb-4 p-4 rounded bg-red-50 text-red-600 text-sm">
-            {error}
+            {Array.isArray(error) ? error.map((err, index) => (
+              <div key={index}>{err}</div>
+            )) : error}
           </div>
         )}
         

@@ -94,7 +94,9 @@ const InputPage = () => {
                 
                 {error && (
                 <div className="mb-4 p-4 rounded bg-red-50 text-red-600 text-sm">
-                    {error}
+                    {Array.isArray(error) ? error.map((err, index) => (
+                        <div key={index}>{err}</div>
+                    )) : error}
                 </div>
                 )}
 
