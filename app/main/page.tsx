@@ -7,11 +7,11 @@ import {
     PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend,
     BarChart, Bar, XAxis, YAxis, CartesianGrid 
 } from 'recharts';
-import Navbar from '@/components/Navbar';
-import { chartColors } from '@/components/ColorPalette';
-import SuccessMessage from '@/components/SuccessMessage';
-import ConfirmDialog from '@/components/ConfirmDialog';
-import { api } from '../lib/api';
+import Navbar from '@/components/layout/Navbar';
+import { chartColors } from '@/components/charts/ColorPalette';
+import SuccessMessage from '@/components/feedback/SuccessMessage';
+import ConfirmDialog from '@/components/dialogs/ConfirmDialog';
+import { api } from "@/components/lib/api";
 
 export default function Main() {
     const getCurrentYearMonth = () => {

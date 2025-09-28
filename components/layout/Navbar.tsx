@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
-import LogoutButton from './ LogoutButton';
+import LogoutButton from '../buttons/LogoutButton';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);

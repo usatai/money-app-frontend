@@ -1,10 +1,11 @@
 import { useRouter } from "next/navigation";
+import { api } from "@/components/lib/api";
 
 const  LogoutButton = () => {
     const router = useRouter();
 
     const handleLogout = async () => {
-        const response = await fetch("http://localhost:8080/api/user/logout",{
+        const response = await api("/api/user/logout",{
             method: 'GET',
             headers: {'Content-Type':'application/json'},
             credentials: 'include'

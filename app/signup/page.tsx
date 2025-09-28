@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { api } from "../lib/api";
+import { api } from "@/components/lib/api";
 
 export default function Home() {
     const [form, setForm] = useState({ username: '', email:'',password: '' });
