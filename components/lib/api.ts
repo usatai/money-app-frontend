@@ -58,28 +58,11 @@ export async function api(path: string, init: RequestInit = {}) {
         }
     }
 
-    // レスポンスにボディがあるかどうかをチェック
-    const contentLength = res.headers.get('content-length');
-    const hasContent = contentLength && parseInt(contentLength, 10) > 0;
-    
-    // エラーレスポンスの処理
     if (!res.ok) {
-      // エラー内容がJSONで返ってくる場合はそれをthrowする
-      if (hasContent) {
-        throw await res.json();
-      }
-      // JSONがない場合はステータス情報でエラーをthrowする
-      throw new Error(`HTTP error! status: ${res.status}`);
+        return await res.json();
     }
 
-    // 成功レスポンスの処理
-    if (hasContent) {
-      // 中身があればJSONとして解釈して返す (ログインなど)
-      return await res.json();
-    } else {
-      // 中身がなければ成功の証として true を返す (ログアウトなど)
-      return true;
-    }
+    return await res.json();
   } catch (e) {
     console.log("ミス" + e);
     return null;
