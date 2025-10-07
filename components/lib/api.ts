@@ -58,11 +58,32 @@ export async function api(path: string, init: RequestInit = {}) {
     }
     }
 
-    if (!res.ok) {
-        return await res.json();
+    // レスポンスにボディがあるかどうかをチェック
+    const contentLength = res.headers.get('content-length');
+    const hasContent = contentLength && parseInt(contentLength, 10) > 0;
+    
+    // レスポンスが成功で、かつ中身がある場合のみJSONとして解釈
+    if (res.ok && hasContent) {
+      return await res.json();
     }
-
-    return await res.json();
+    
+    // レスポンスが成功で、中身がない場合 (ログアウトなど)
+    if (res.ok && !hasContent) {
+      return true; // または null や空のオブジェクト {} を返す
+    }
+    
+    // レスポンスが失敗で、中身がある場合
+    if (!res.ok && hasContent) {
+      // エラーレスポンスのJSONを返す
+      const errorData = await res.json();
+      return Promise.reject(errorData); // エラーとして扱う
+    }
+    
+    // レスポンスが失敗で、中身がない場合
+    if (!res.ok && !hasContent) {
+      // ステータスコードなどからエラーオブジェクトを生成
+      return Promise.reject({ status: res.status, message: res.statusText });
+    }
   } catch (e) {
     console.log("ミス" + e);
     return null;
