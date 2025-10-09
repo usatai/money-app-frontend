@@ -58,6 +58,8 @@ export async function api(path: string, init: RequestInit = {}) {
         }
     }
 
+    console.log("ログアウト用デバック" + res);
+
     if (!res.ok) {
         return await res.json();
     }
