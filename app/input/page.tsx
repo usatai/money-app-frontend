@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useState ,useEffect, Fragment} from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
-=======
 import { api } from "@/components/lib/api";
 import Navbar from "@/components/layout/Navbar";
 
@@ -141,8 +140,24 @@ const InputPage = () => {
                                             }`
                                         }
                                         >
-                                        {/* 複雑な条件分岐は不要で、テキストを直接表示する */}
-                                        {option.label}
+                                            {({ selected }) => (
+                                                <>
+                                                <span
+                                                    className={`block truncate ${
+                                                    // selectedなら太字に、そうでなければ通常の太さにする
+                                                    selected ? 'font-medium' : 'font-normal'
+                                                    }`}
+                                                >
+                                                    {option.label}
+                                                </span>
+                                                {/* selectedならチェックマークを表示する */}
+                                                {selected ? (
+                                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600">
+                                                    <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                                    </span>
+                                                ) : null}
+                                                </>
+                                            )}
                                         </Listbox.Option>
                                     ))}
                                     </Listbox.Options>

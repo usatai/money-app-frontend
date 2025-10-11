@@ -160,8 +160,24 @@ const MoneyPage = () => {
                                             }`
                                         }
                                         >
-                                        {/* 複雑な条件分岐は不要で、テキストを直接表示する */}
-                                        {option.label}
+                                        {({ selected }) => (
+                                            <>
+                                            <span
+                                                className={`block truncate ${
+                                                // selectedなら太字に、そうでなければ通常の太さにする
+                                                selected ? 'font-medium' : 'font-normal'
+                                                }`}
+                                            >
+                                                {option.label}
+                                            </span>
+                                            {/* selectedならチェックマークを表示する */}
+                                            {selected ? (
+                                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600">
+                                                <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                                </span>
+                                            ) : null}
+                                            </>
+                                        )}
                                         </Listbox.Option>
                                     ))}
                                     </Listbox.Options>
@@ -219,7 +235,24 @@ const MoneyPage = () => {
                                             }`
                                         }
                                         >
-                                        {money}
+                                        {({ selected }) => (
+                                            <>
+                                            <span
+                                                className={`block truncate ${
+                                                // selectedなら太字に、そうでなければ通常の太さにする
+                                                selected ? 'font-medium' : 'font-normal'
+                                                }`}
+                                            >
+                                                {money}
+                                            </span>
+                                            {/* selectedならチェックマークを表示する */}
+                                            {selected ? (
+                                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600">
+                                                <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                                </span>
+                                            ) : null}
+                                            </>
+                                        )}
                                         </Listbox.Option>
                                     ))}
                                     </Listbox.Options>
