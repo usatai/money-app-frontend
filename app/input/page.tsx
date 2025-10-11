@@ -1,7 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState ,useEffect} from "react";
+import { useState ,useEffect, Fragment} from "react";
+import { Listbox, Transition } from "@headlessui/react";
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
+=======
 import { api } from "@/components/lib/api";
 import Navbar from "@/components/layout/Navbar";
 
@@ -11,6 +14,11 @@ const InputPage = () => {
     const [isLoading,setLoding] = useState(true);
     const router = useRouter();
     const [currentDate,setCurrentDate]= useState<string | null>(null);
+    const options = [
+        { value: 'INCOME', label: '収入' },
+        { value: 'EXPENDITURE', label: '支出' }
+    ];
+
 
     // ローディング用
     useEffect(() => {
@@ -23,7 +31,6 @@ const InputPage = () => {
             try {
                 // バックエンドにGETリクエストを送り、XSRF-TOKENクッキーをもらう
                 await api('/api/user/csrf');
-                console.log('✅ mainページでCSRFクッキーの準備ができました。');
                 const data = localStorage.getItem('currentDate');
                 setCurrentDate(data);
             } catch (error) {
@@ -42,9 +49,6 @@ const InputPage = () => {
     const labelFormSubmit = async (e:React.FormEvent) => {
         e.preventDefault();
         setError(null);
-
-        console.log('API実行前のcurrentDate:', currentDate);
-        console.log('localStorage直接取得:', localStorage.getItem('currentDate'));
 
         // 送信するデータを事前に作成して確認
         const requestData = {
@@ -102,14 +106,49 @@ const InputPage = () => {
 
                 <form onSubmit={labelFormSubmit} className="space-y-4">
                     <div>
-                        <select 
-                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            onChange={(e) => setForm({...form, type: e.target.value})}
+                        <Listbox
                             value={form.type}
+                            onChange={(value) => setForm({...form,type: value} )}                        
                             >
-                            <option value="INCOME">収入</option>
-                            <option value="EXPENDITURE">支出</option>
-                        </select>
+                            <div className="relative">
+                                <Listbox.Button className="relative w-full cursor-default rounded border bg-white py-2 pl-3 pr-10 text-left shadow focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75">
+                                    <span className="block truncate text-gray-700">
+                                        {options.find(option => option.value === form.type)?.label}
+                                    </span>
+                                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                        <ChevronUpDownIcon
+                                            className="h-5 w-5 text-gray-400"
+                                            aria-hidden="true"
+                                        />
+                                    </span>
+                            </Listbox.Button>
+                        
+                            <Transition
+                                    as={Fragment}
+                                    leave="transition ease-in duration-100"
+                                    leaveFrom="opacity-100"
+                                    leaveTo="opacity-0"
+                                >
+                                    <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+                                    {options.map((option) => (
+                                        <Listbox.Option
+                                        key={option.value}
+                                        value={option.value}
+                                        className={({ active }) =>
+                                            // マウスホバー時(active)に背景色を変えるだけのシンプルなスタイル
+                                            `relative cursor-default select-none py-2 px-4 ${
+                                            active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
+                                            }`
+                                        }
+                                        >
+                                        {/* 複雑な条件分岐は不要で、テキストを直接表示する */}
+                                        {option.label}
+                                        </Listbox.Option>
+                                    ))}
+                                    </Listbox.Options>
+                                </Transition>
+                            </div>
+                        </Listbox>
                     </div>
                     <div>
                         <input
