@@ -1,10 +1,10 @@
 'use client';
 import { useRouter } from "next/navigation";
 import { useState,useEffect, Fragment} from "react";
-import { api } from "../lib/api";
-import Navbar from "@/components/Navbar";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
+import { api } from "@/components/lib/api";
+import Navbar from "@/components/layout/Navbar";
 
 const MoneyPage = () => {
     const [moneyList,setMoneyList] = useState<string[]>([]);

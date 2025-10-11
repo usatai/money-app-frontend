@@ -1,12 +1,5 @@
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
-// Cookie 取得関数
-function getCookie(name: string): string {
-  return document.cookie
-    .split('; ')
-    .find(row => row.startsWith(name + '='))?.split('=')[1] ?? '';
-}
-
 // 汎用 API 関数
 export async function api(path: string, init: RequestInit = {}) {
   const method = (init.method ?? 'GET').toUpperCase();
@@ -20,13 +13,14 @@ export async function api(path: string, init: RequestInit = {}) {
   try {
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
         // CSRF Cookie を事前取得
-        await fetch(`${BASE}/api/user/csrf`, {
+        const csrfResponse = await fetch(`${BASE}/api/user/csrf`, {
           credentials: 'include',
         });
-    
-        console.log(document.cookie);
-    
-        const xsrfToken = getCookie('XSRF-TOKEN');
+
+        const csrfData = await csrfResponse.json();
+        const xsrfToken = csrfData.token;
+        
+        console.log(xsrfToken);
         if (xsrfToken) {
           headers['X-XSRF-TOKEN'] = xsrfToken;
         }
@@ -48,21 +42,23 @@ export async function api(path: string, init: RequestInit = {}) {
     
     // 401 が返った場合に一度だけリフレッシュ → 再試行
     if (res.status === 401) {
-    const refreshRes = await fetch(`${BASE}/api/user/refresh`, {
-        method: 'POST',
-        credentials: 'include',
-    });
-
-    console.log("ログ" + refreshRes);
-
-    if (refreshRes.ok) {
-        res = await fetch(`${BASE}${path}`, {
-        ...init,
-        credentials: 'include',
-        headers,
+        const refreshRes = await fetch(`${BASE}/api/user/refresh`, {
+            method: 'POST',
+            credentials: 'include',
         });
+
+        console.log("ログ" + refreshRes);
+
+        if (refreshRes.ok) {
+            res = await fetch(`${BASE}${path}`, {
+            ...init,
+            credentials: 'include',
+            headers,
+            });
+        }
     }
-    }
+
+    console.log("ログアウト用デバック" + res);
 
     if (!res.ok) {
         return await res.json();

@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '../lib/api'; 
+import { api } from "@/components/lib/api";
 
 
 const LoginPage = () => {
@@ -27,6 +27,8 @@ const LoginPage = () => {
                 loginUser_password:form.password,
             }),
         });
+
+        console.log(data);
 
         if (data.userId) {
             console.log(data.check);

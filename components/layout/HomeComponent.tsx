@@ -67,7 +67,7 @@ const HomeComponent = () => {
                         {
                             src: "/images/money-remainder.jpg",
                             alt: "通知機能",
-                            title: "通知機能 ※現在開発中",
+                            title: "通知機能",
                             description: "設定した支出金額目標より使いすぎなときはリマインドしてくれて目標達成をサポートしてくれる"
                         }
                     ].map((card, index) => (

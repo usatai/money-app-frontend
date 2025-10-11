@@ -1,23 +1,24 @@
 import { useRouter } from "next/navigation";
+import { api } from "@/components/lib/api";
 
 const  LogoutButton = () => {
     const router = useRouter();
 
     const handleLogout = async () => {
-        const response = await fetch("http://localhost:8080/api/user/logout",{
+        const data = await api("/api/user/logout",{
             method: 'GET',
             headers: {'Content-Type':'application/json'},
             credentials: 'include'
         })
 
-        if (response.ok) {
+        if (data && data.message) {
             // 任意: ログアウト成功の表示なども可能
-            console.log('ログアウトしました');
+            console.log('ログアウトしました' + data.message);
             // ログイン画面に遷移
             router.push('/');
         } else {
             console.log("ログアウト失敗");
-            router.push('/');
+            alert('ログアウトに失敗しました。');
         }  
     };
 
