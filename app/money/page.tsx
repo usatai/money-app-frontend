@@ -230,7 +230,7 @@ const MoneyPage = () => {
                                         value={money}
                                         className={({ active }) =>
                                             // マウスホバー時(active)に背景色を変えるだけのシンプルなスタイル
-                                            `relative cursor-default select-none py-2 px-4 ${
+                                            `relative cursor-default select-none py-2 pl-10 pr-4 ${
                                             active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
                                             }`
                                         }
