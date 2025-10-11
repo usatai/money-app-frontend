@@ -83,12 +83,14 @@ const GoalExpenditure  = () => {
                     />
                 </div>
                 
-                <button
-                    type="submit"
-                    className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
-                >
-                    目標設定
-                </button>
+                <div className="pt-2 flex flex-col items-center gap-4">
+                    <button
+                        type="submit"
+                        className="w-3/4 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
+                    >
+                        目標設定
+                    </button>
+                </div>
 
                 </form>
             </div>

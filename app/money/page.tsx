@@ -272,22 +272,24 @@ const MoneyPage = () => {
                         />
                     </div>
 
-                    {/* 登録ボタン */}
-                    <button
-                        type="submit"
-                        className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors"
-                    >
-                        登録
-                    </button>
+                    <div className="pt-2 flex flex-col items-center gap-4">
+                        {/* 登録ボタン */}
+                        <button
+                            type="submit"
+                            className="w-3/4 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors"
+                        >
+                            登録
+                        </button>
 
-                    {/* 戻るボタン */}
-                    <button
-                        type="button"
-                        onClick={() => window.location.href = '/main'}
-                        className="w-full bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition-colors"
-                    >
-                        戻る
-                    </button>
+                        {/* 戻るボタン */}
+                        <button
+                            type="button"
+                            onClick={() => window.location.href = '/main'}
+                            className="w-3/4 bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition-colors"
+                        >
+                            戻る
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

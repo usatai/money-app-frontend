@@ -176,20 +176,22 @@ const InputPage = () => {
                         />
                     </div>
 
-                    <button
-                        type="submit"
-                        className="mt-5 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors"
-                    >
-                        登録
-                    </button>
+                    <div className="pt-2 flex flex-col items-center gap-4">
+                        <button
+                            type="submit"
+                            className="mt-5 w-3/4 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors"
+                        >
+                            登録
+                        </button>
 
-                    <button
-                        onClick={() => window.location.href = '/main'}
-                        type="button"
-                        className="mt-2 w-full bg-gray-600 text-white py-2 rounded-md hover:bg-gray-700 transition-colors"
-                    >
-                        戻る
-                    </button>
+                        <button
+                            onClick={() => window.location.href = '/main'}
+                            type="button"
+                            className="mt-2 w-3/4 bg-gray-600 text-white py-2 rounded-md hover:bg-gray-700 transition-colors"
+                        >
+                            戻る
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
