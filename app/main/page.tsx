@@ -1,8 +1,7 @@
 'use client';
 
-import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import { useState,useEffect } from 'react';
+import { useState, useEffect, Fragment, Suspense } from 'react';
 import { 
     PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend,
     BarChart, Bar, XAxis, YAxis, CartesianGrid 
@@ -11,6 +10,8 @@ import Navbar from '@/components/Navbar';
 import { chartColors } from '@/components/ColorPalette';
 import SuccessMessage from '@/components/SuccessMessage';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { Listbox, Transition } from '@headlessui/react';
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { api } from '../lib/api';
 
 export default function Main() {
@@ -127,37 +128,86 @@ export default function Main() {
 
     return (
         <Suspense fallback={<div>Loading...</div>}>
-            <div className="min-h-screen bg-blue-50">
+            <div className="min-h-screen bg-blue-50 flex flex-col">
 
                 <SuccessMessage />
 
                 <Navbar />
 
-                <div className="container mx-auto px-4 py-6">
+                <div
+                    className="container mx-auto px-3 sm:px-4 md:px-8 lg:px-16 py-4 sm:py-6 flex-1 w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl"
+                >
                     <div className="mb-6 flex flex-col items-center">
-                        <label className="block text-gray-700 text-sm font-bold mb-2 text-center">
+                        <label className="block text-gray-700 text-base sm:text-lg font-bold mb-2 text-center">
                             月選択
                         </label>
-                        <select
-                            className="shadow border rounded w-125  py-2 px-3 text-gray-700 mx-auto"
-                            value={selectMonth}
-                            onChange={(e) => 
-                                setSelectMonth(e.target.value)}
-                        >
-                            {userMonthList.map(month => (
-                            <option key={month} value={month}>{month}月</option>
-                            ))}
-                        </select>
+                        <div className="flex justify-center w-full">
+                            <div className="w-60 md:w-120"> {/* 中央揃えは親のflex justify-centerに任せる */}
+                                <Listbox value={selectMonth} onChange={setSelectMonth}>
+                                    <div className="relative">
+                                    {/* 1. ボタン部分（選択されている値を表示） */}
+                                    <Listbox.Button className="relative w-full cursor-default rounded border bg-white py-2 pl-3 pr-10 text-left shadow focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75">
+                                        <span className="block truncate text-gray-700">{selectMonth}</span>
+                                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                        <ChevronUpDownIcon
+                                            className="h-5 w-5 text-gray-400"
+                                            aria-hidden="true"
+                                        />
+                                        </span>
+                                    </Listbox.Button>
+
+                                    {/* 2. オプションリスト部分（アニメーション付き） */}
+                                    <Transition
+                                        as={Fragment}
+                                        leave="transition ease-in duration-100"
+                                        leaveFrom="opacity-100"
+                                        leaveTo="opacity-0"
+                                    >
+                                        <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+                                        {userMonthList.map((month, monthIdx) => (
+                                            <Listbox.Option
+                                            key={monthIdx}
+                                            className={({ active }) =>
+                                                `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                                                active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
+                                                }`
+                                            }
+                                            value={month}
+                                            >
+                                            {({ selected }) => (
+                                                <>
+                                                <span
+                                                    className={`block truncate ${
+                                                    selected ? 'font-medium' : 'font-normal'
+                                                    }`}
+                                                >
+                                                    {month}月
+                                                </span>
+                                                {selected ? (
+                                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600">
+                                                    <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                                    </span>
+                                                ) : null}
+                                                </>
+                                            )}
+                                            </Listbox.Option>
+                                        ))}
+                                        </Listbox.Options>
+                                    </Transition>
+                                    </div>
+                                </Listbox>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                        <h4 className="text-xl font-bold text-center mb-6">
+                    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6">
+                        <h4 className="text-lg sm:text-xl font-bold text-center mb-4 sm:mb-6">
                             月間リアルタイム割合収支グラフ
                         </h4>
                         {selectedCategory === 'total' ? (
-                            <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                                <h3 style={{ margin: 0 }}>収支合計額</h3>
-                                <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'red', marginBottom: 20 }}>
+                            <div className="text-center mt-6 mb-2">
+                                <h3 className="m-0 text-base sm:text-lg">収支合計額</h3>
+                                <p className="text-lg sm:text-2xl font-bold text-red-500 mb-4">
                                     {balance.toLocaleString('ja-JP', { style: 'currency', currency: 'JPY' })}
                                 </p>
                             </div>
@@ -203,9 +253,9 @@ export default function Main() {
                                 収支合計
                             </button>
                         </div>
-                        <div className="flex flex-col md:flex-row">
-                           {pieChartData.length > 0 || selectedCategory === 'total' ? (
-                                <div className="w-full md:w-3/4 lg:w-2/3 xl:w-1/2 mx-auto" style={{ height: 250 }}>
+                        <div className="flex flex-col md:flex-row md:items-start md:justify-center">
+                            {pieChartData.length > 0 || selectedCategory === 'total' ? (
+                                <div className="w-full sm:w-5/6 md:w-3/4 lg:w-2/3 xl:w-1/2 mx-auto" style={{ height: 250 }}>
                                     <ResponsiveContainer>
                                         {selectedCategory === 'total' ? (
                                             <BarChart data={barTotalData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
@@ -262,20 +312,20 @@ export default function Main() {
                                     />
                                 </div>
                             ) : (
-                            <div className="w-3/4 mx-auto h-[250px] flex items-center justify-center text-gray-500">
-                                グラフデータがありません。
-                            </div>
+                                <div className="w-full sm:w-3/4 mx-auto h-[180px] sm:h-[220px] md:h-[250px] flex items-center justify-center text-gray-500 text-base">
+                                    グラフデータがありません。
+                                </div>
                             )}
                         </div>
                     </div>
 
                     {/* 棒グラフセクション */}
                     {barChartData.length > 0 && selectedCategory !== 'total' ? (
-                        <div className="bg-white rounded-lg shadow-md p-6">   
-                            <h4 className="text-xl font-bold text-center mb-6">
-                            日別支出グラフ
+                        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                            <h4 className="text-lg sm:text-xl font-bold text-center mb-4 sm:mb-6">
+                                日別支出グラフ
                             </h4>
-                            <div className="h-[300px]">
+                            <div className="h-[200px] sm:h-[250px] md:h-[300px]">
                                 <ResponsiveContainer>
                                     <BarChart 
                                         data={barChartData}
