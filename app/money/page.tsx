@@ -1,10 +1,16 @@
 'use client';
 import { useRouter } from "next/navigation";
 import { useState,useEffect, Fragment} from "react";
-import { Listbox, Transition } from "@headlessui/react";
+import { Listbox, Transition, Popover } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { api } from "@/components/lib/api";
 import Navbar from "@/components/layout/Navbar";
+import { DayPicker } from 'react-day-picker';
+import { format } from 'date-fns';
+import { ja } from 'date-fns/locale';
+import { CalendarDaysIcon } from '@heroicons/react/24/outline';
+import 'react-day-picker/dist/style.css'; 
+
 
 const MoneyPage = () => {
     const [moneyList,setMoneyList] = useState<string[]>([]);
@@ -115,12 +121,42 @@ const MoneyPage = () => {
 
                     {/* 日付入力 */}
                     <div>
-                        <input
-                            type="date"
-                            value={formData.date}
-                            onChange={(e) => setFormData({...formData, date: e.target.value})}
-                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                        <Popover className="relative">
+                            {/* カレンダーを開くためのボタン */}
+                            <Popover.Button className="w-full flex items-center justify-between px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <span>
+                                    {/* formData.dateがあればフォーマットして表示、なければプレースホルダー */}
+                                    {formData.date ? format(new Date(formData.date), 'yyyy年M月d日') : '日付を選択'}
+                                </span>
+                                <CalendarDaysIcon className="h-5 w-5 text-gray-500" />
+                            </Popover.Button>
+
+                            <Transition
+                                as={Fragment}
+                                enter="transition ease-out duration-200"
+                                enterFrom="opacity-0 translate-y-1"
+                                enterTo="opacity-100 translate-y-0"
+                                leave="transition ease-in duration-150"
+                                leaveFrom="opacity-100 translate-y-0"
+                                leaveTo="opacity-0 translate-y-1"
+                            >
+                                {/* カレンダー本体 */}
+                                <Popover.Panel className="absolute z-10 mt-2 bg-white border rounded-md shadow-lg">
+                                    <DayPicker
+                                    mode="single" // 単一の日付を選択するモード
+                                    selected={formData.date ? new Date(formData.date) : undefined}
+                                    onSelect={(date) => {
+                                        if (date) {
+                                        // 選択された日付を 'YYYY-MM-DD' 形式の文字列に変換してstateを更新
+                                        setFormData({ ...formData, date: format(date, 'yyyy-MM-dd') });
+                                        }
+                                    }}
+                                    locale={ja} // カレンダーを日本語表示にする
+                                    initialFocus
+                                    />
+                                </Popover.Panel>
+                            </Transition>
+                        </Popover>
                     </div>
 
                     {/* 収支区別 */}
