@@ -104,7 +104,7 @@ const MoneyPage = () => {
     return (
         <>
         <Navbar />
-        <div className="min-h-screen flex items-start pt-30 justify-center bg-gradient-to-br from-blue-50 to-purple-50 p-4">
+        <div className="min-h-screen flex items-start pt-20 justify-center bg-gradient-to-br from-blue-50 to-purple-50 p-4">
             <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-lg shadow-md">
 
                 {error && (
@@ -143,16 +143,16 @@ const MoneyPage = () => {
                                 {/* カレンダー本体 */}
                                 <Popover.Panel className="absolute z-10 mt-2 bg-white border rounded-md shadow-lg">
                                     <DayPicker
-                                    mode="single" // 単一の日付を選択するモード
-                                    selected={formData.date ? new Date(formData.date) : undefined}
-                                    onSelect={(date) => {
-                                        if (date) {
-                                        // 選択された日付を 'YYYY-MM-DD' 形式の文字列に変換してstateを更新
-                                        setFormData({ ...formData, date: format(date, 'yyyy-MM-dd') });
-                                        }
-                                    }}
-                                    locale={ja} // カレンダーを日本語表示にする
-                                    initialFocus
+                                        mode="single" // 単一の日付を選択するモード
+                                        selected={formData.date ? new Date(formData.date) : undefined}
+                                        onSelect={(date) => {
+                                            if (date) {
+                                            // 選択された日付を 'YYYY-MM-DD' 形式の文字列に変換してstateを更新
+                                            setFormData({ ...formData, date: format(date, 'yyyy-MM-dd') });
+                                            }
+                                        }}
+                                        locale={ja} // カレンダーを日本語表示にする
+                                        initialFocus
                                     />
                                 </Popover.Panel>
                             </Transition>
