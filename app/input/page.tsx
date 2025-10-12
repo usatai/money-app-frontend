@@ -89,8 +89,8 @@ const InputPage = () => {
         <>
         <Navbar />
 
-        <div className="min-h-screen flex items-start justify-center pt-30 bg-gradient-to-br from-blue-50 to-purple-50">
-            <div className="bg-white p-8 rounded-lg shadow-md w-96">
+        <div className="min-h-screen flex items-start justify-center pt-30 bg-gradient-to-br from-blue-50 to-purple-50 p-4">
+            <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-lg shadow-md">
                 <h1 className="text-2xl font-bold text-center mb-10">収支項目の入力</h1>
 
                 <h3 className="text-sm text-center mb-10">管理をしたい収支カテゴリーを入力してください</h3>

@@ -98,8 +98,8 @@ const MoneyPage = () => {
     return (
         <>
         <Navbar />
-        <div className="min-h-screen flex items-start pt-30 justify-center bg-gradient-to-br from-blue-50 to-purple-50">
-            <div className="bg-white p-8 rounded-lg shadow-md w-96">
+        <div className="min-h-screen flex items-start pt-30 justify-center bg-gradient-to-br from-blue-50 to-purple-50 p-4">
+            <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-lg shadow-md">
 
                 {error && (
                 <div className="mb-4 p-4 rounded bg-red-50 text-red-600 text-sm">

@@ -135,14 +135,14 @@ export default function Main() {
                 <Navbar />
 
                 <div
-                    className="container mx-auto px-3 sm:px-4 md:px-8 lg:px-16 py-4 sm:py-6 flex-1 w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl"
+                    className="container mx-auto w-full px-4 py-4 sm:py-6"
                 >
                     <div className="mb-6 flex flex-col items-center">
                         <label className="block text-gray-700 text-base sm:text-lg font-bold mb-2 text-center">
                             月選択
                         </label>
-                        <div className="flex justify-center w-full">
-                            <div className="w-60 md:w-120"> {/* 中央揃えは親のflex justify-centerに任せる */}
+                        <div className="w-full max-w-xs sm:max-w-sm">
+                            {/* <div className="w-60 md:w-120"> 中央揃えは親のflex justify-centerに任せる */}
                                 <Listbox value={selectMonth} onChange={setSelectMonth}>
                                     <div className="relative">
                                     {/* 1. ボタン部分（選択されている値を表示） */}
@@ -196,7 +196,7 @@ export default function Main() {
                                     </Transition>
                                     </div>
                                 </Listbox>
-                            </div>
+                            {/* </div> */}
                         </div>
                     </div>
 
