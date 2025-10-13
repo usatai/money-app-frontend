@@ -36,7 +36,6 @@ const MoneyPage = () => {
 
     useEffect(() => {
         const currentDate = localStorage.getItem('currentDate');
-        console.log(currentDate);
         if (currentDate) {
             const month = currentDate.split("-")[1];
             setCurrentMonthDate(parseInt(month, 10));

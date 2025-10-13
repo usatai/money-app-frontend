@@ -26,14 +26,6 @@ export async function api(path: string, init: RequestInit = {}) {
         }
       }
     
-    // メインの fetch
-    console.log('[api] 送信するリクエスト:', {
-        url: `${BASE}${path}`,
-        method: init.method || 'GET',
-        headers,
-        body: init.body
-    });
-    
     let res = await fetch(`${BASE}${path}`, {
         ...init,
         credentials: 'include', // Cookie 送受信
@@ -57,8 +49,6 @@ export async function api(path: string, init: RequestInit = {}) {
             });
         }
     }
-
-    console.log("ログアウト用デバック" + res);
 
     if (!res.ok) {
         return await res.json();

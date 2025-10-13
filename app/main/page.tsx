@@ -32,7 +32,6 @@ export default function Main() {
     const [moneyDate, setMoneyDate] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const router = useRouter();
-    // const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const [selectedCategory, setSelectedCategory] = useState<'total' | 'income' | 'expense'>('income');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [barChart,setBarChart] = useState('収入');

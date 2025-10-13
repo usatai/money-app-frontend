@@ -22,7 +22,6 @@ const GestLogin  = () => {
             })
 
             if (data) {
-                console.log("user_id",data.userId);
                 router.push(`/main`);
             }else{
                 if(data.errors && Array.isArray(data.errors)){

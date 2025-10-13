@@ -28,12 +28,8 @@ const LoginPage = () => {
             }),
         });
 
-        console.log(data);
-
         if (data.userId) {
-            console.log(data.check);
             if (data.check === true) {
-                console.log("user_id",data.userId);
                 router.push(`/main`);
             } else {
                 router.push('/goal_expenditure')

@@ -55,16 +55,12 @@ const InputPage = () => {
             type: form.type,
             currentDate: currentDate
         };
-        console.log('送信するデータ:', requestData);
-        console.log('JSON文字列化後:', JSON.stringify(requestData));
 
         try{
             const data = await api("/api/user/input", {
             method: "POST",
             body: JSON.stringify(requestData),
             });
-
-            console.log("データ" + data);
 
             if (data) {
                 router.push(`/main?message=${encodeURIComponent(data.message)}`);
