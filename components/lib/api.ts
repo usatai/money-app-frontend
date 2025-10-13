@@ -20,7 +20,6 @@ export async function api(path: string, init: RequestInit = {}) {
         const csrfData = await csrfResponse.json();
         const xsrfToken = csrfData.token;
         
-        console.log(xsrfToken);
         if (xsrfToken) {
           headers['X-XSRF-TOKEN'] = xsrfToken;
         }
@@ -51,7 +50,12 @@ export async function api(path: string, init: RequestInit = {}) {
     }
 
     if (!res.ok) {
-        return await res.json();
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            return await res.json();
+        } else {
+            return await res.text();
+        }
     }
 
     return await res.json();

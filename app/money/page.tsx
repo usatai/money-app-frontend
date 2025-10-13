@@ -65,6 +65,8 @@ const MoneyPage = () => {
             .catch((error) => {
                 setLoding(false);
                 setError(error.message);
+                alert("ユーザー管理タイムアウトのためログアウトします。")
+                router.push("/");
             });
         },[formData.incomeExpenditureType,currentMonthDate])
 
@@ -90,11 +92,13 @@ const MoneyPage = () => {
                 if(data.errors){
                     setError(data.errors);
                 }
+                router.push("/");
             }
         }catch (e) {
             if(e instanceof Error){
                 setError(e.message);
             }
+            router.push("/");
         }
     };
 
