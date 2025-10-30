@@ -29,13 +29,13 @@ const LoginPage = () => {
         });
 
         if (data.userId) {
+            console.log(data.check);
             if (data.check === true) {
                 router.push(`/main`);
             } else {
                 router.push('/goal_expenditure')
             }
         } else {
-            console.log(data.errors);
             if(data.errors && Array.isArray(data.errors)){
                 setError(data.errors);
             }else{
@@ -72,7 +72,7 @@ const LoginPage = () => {
               placeholder="ユーザー名"
               value={form.username}
               onChange={handleChange}
-              autoComplete="off"
+              autoComplete="username"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
             />
           </div>
@@ -84,7 +84,7 @@ const LoginPage = () => {
               placeholder="パスワード" 
               value={form.password}
               onChange={handleChange}
-              autoComplete="off"
+              autoComplete="password"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
             />
           </div>
