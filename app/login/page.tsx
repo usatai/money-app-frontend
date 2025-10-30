@@ -98,7 +98,7 @@ const LoginPage = () => {
             </button>
 
             <button
-                onClick={() => window.location.href = '/'}
+                onClick={() => router.push('/')}
                 type="button"
                 className="w-3/4 bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
             >
