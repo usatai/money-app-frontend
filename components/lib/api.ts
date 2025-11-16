@@ -38,8 +38,6 @@ export async function api(path: string, init: RequestInit = {}) {
             credentials: 'include',
         });
 
-        console.log("ログ" + refreshRes);
-
         if (refreshRes.ok) {
             res = await fetch(`${BASE}${path}`, {
             ...init,
