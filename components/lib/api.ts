@@ -1,19 +1,7 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.money-mng.com';
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 // const BASE = 'https://lgzcgi1jff.execute-api.ap-northeast-1.amazonaws.com';
 
-// Cookieから XSRF-TOKEN を取得する関数
-function getCsrfTokenFromCookie(): string | null {
-    if (typeof document === 'undefined') return null;
-    
-    const cookies = document.cookie.split(';');
-    for (const cookie of cookies) {
-      const [name, value] = cookie.trim().split('=');
-      if (name === 'XSRF-TOKEN') {
-        return decodeURIComponent(value);
-      }
-    }
-    return null;
-}
+
 
 // 汎用 API 関数
 export async function api(path: string, init: RequestInit = {}) {
@@ -28,14 +16,14 @@ export async function api(path: string, init: RequestInit = {}) {
   try {
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
         // CSRF Cookie を事前取得
-        // const csrfResponse = await fetch(`${BASE}/api/user/csrf`, {
-        //   credentials: 'include',
-        // });
+        const csrfResponse = await fetch(`${BASE}/api/user/csrf`, {
+          credentials: 'include',
+        });
 
-        // const csrfData = await csrfResponse.json();
-        // const xsrfToken = csrfData.token;
+        const csrfData = await csrfResponse.json();
+        const xsrfToken = csrfData.token;
 
-        const xsrfToken = getCsrfTokenFromCookie();
+        console.log(xsrfToken);
         
         if (xsrfToken) {
           headers['X-XSRF-TOKEN'] = xsrfToken;
@@ -66,6 +54,7 @@ export async function api(path: string, init: RequestInit = {}) {
 
     if (!res.ok) {
         const contentType = res.headers.get('content-type') || '';
+        console.log(res);
         if (contentType.includes('application/json')) {
             return await res.json();
         } else {
