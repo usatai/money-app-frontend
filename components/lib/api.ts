@@ -2,7 +2,6 @@ const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 // const BASE = 'https://lgzcgi1jff.execute-api.ap-northeast-1.amazonaws.com';
 
 
-
 // 汎用 API 関数
 export async function api(path: string, init: RequestInit = {}) {
   const method = (init.method ?? 'GET').toUpperCase();
@@ -22,8 +21,6 @@ export async function api(path: string, init: RequestInit = {}) {
 
         const csrfData = await csrfResponse.json();
         const xsrfToken = csrfData.token;
-
-        console.log(xsrfToken);
         
         if (xsrfToken) {
           headers['X-XSRF-TOKEN'] = xsrfToken;
